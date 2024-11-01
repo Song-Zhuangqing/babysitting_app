@@ -1,4 +1,5 @@
 <?php
+// 数据库连接信息
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -12,36 +13,32 @@ if ($conn->connect_error) {
     die(json_encode(['status' => 'error', 'message' => 'Connection failed: ' . $conn->connect_error]));
 }
 
-$nanniesId = $_POST['nannies_id'] ?? null;
+$nanniesId = $_POST['nannies_id'] ?? null; // 接收传递的 nannies_id
 
 if (!$nanniesId) {
     echo json_encode(['status' => 'error', 'message' => 'Nanny ID is required']);
     exit();
 }
 
-// 获取保姆的所有订单
-$sql = "SELECT o.orders_date, p.parents_name, o.orders_location, o.orders_child_name, o.nannies_details_price
-        FROM orders o
-        JOIN parents p ON o.parents_id = p.parents_id
-        WHERE o.nannies_id = ?
-        ORDER BY o.orders_date DESC";
-
+// 查询保姆的评价信息
+$sql = "SELECT reviews_content FROM reviews WHERE nannies_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $nanniesId);
 $stmt->execute();
 $result = $stmt->get_result();
 
-// 处理查询结果
+// 检查是否有评价
 if ($result->num_rows > 0) {
-    $orders = [];
+    $reviews = [];
     while ($row = $result->fetch_assoc()) {
-        $orders[] = $row;
+        $reviews[] = $row;
     }
-    echo json_encode(['status' => 'success', 'orders' => $orders]);
+    echo json_encode(['status' => 'success', 'data' => $reviews]);
 } else {
-    echo json_encode(['status' => 'error', 'message' => 'No orders found']);
+    echo json_encode(['status' => 'error', 'message' => 'No reviews found']);
 }
 
+// 关闭连接
 $stmt->close();
 $conn->close();
 ?>

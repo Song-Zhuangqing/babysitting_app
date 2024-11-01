@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'nannies_review.dart';
 import 'nannies_sidemenu.dart'; // 导入侧边栏
 
-
 class NanniesOrdersDetailsScreen extends StatelessWidget {
   final Map<String, dynamic> order;
+  final String userEmail; // 新增：当前登录用户的邮箱
 
-  NanniesOrdersDetailsScreen({required this.order});
+  NanniesOrdersDetailsScreen({
+    required this.order,
+    required this.userEmail, // 接收当前登录用户的邮箱
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +19,7 @@ class NanniesOrdersDetailsScreen extends StatelessWidget {
       ),
       drawer: NanniesSideMenu(
         userId: order['nannies_id'] ?? '',
-        userEmail: 'example@example.com', // 这里应该替换为实际的用户邮箱
+        userEmail: userEmail, // 使用传递的实际用户邮箱
         userType: 'Nanny',
       ),
       body: Padding(

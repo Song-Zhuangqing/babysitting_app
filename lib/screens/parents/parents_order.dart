@@ -69,7 +69,7 @@ class _ParentsOrderScreenState extends State<ParentsOrderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Place Order'),
+        title: Text('Send Request'),
       ),
       drawer: SideMenu(
         userId: widget.parentsId,
@@ -117,7 +117,7 @@ class _ParentsOrderScreenState extends State<ParentsOrderScreen> {
                     _placeOrder();
                   }
                 },
-                child: Text('Place Order'),
+                child: Text('Send Request'),
               ),
             ],
           ),

@@ -136,7 +136,7 @@ class ParentsViewDetailsScreen extends StatelessWidget {
               );
             },
             child: Icon(Icons.shopping_cart),
-            tooltip: 'Place Order',
+            tooltip: 'Send Request',
           ),
           SizedBox(height: 10),
           FloatingActionButton(
