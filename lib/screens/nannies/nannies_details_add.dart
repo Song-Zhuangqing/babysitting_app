@@ -6,8 +6,14 @@ import 'nannies_sidemenu.dart'; // 导入 NanniesSideMenu 组件
 
 class NanniesDetailsAddScreen extends StatefulWidget {
   final String userId;
+  final String userEmail;
+  final String userType;
 
-  NanniesDetailsAddScreen({required this.userId});
+  NanniesDetailsAddScreen({
+    required this.userId,
+    required this.userEmail,
+    required this.userType,
+  });
 
   @override
   _NanniesDetailsAddScreenState createState() => _NanniesDetailsAddScreenState();
@@ -22,7 +28,7 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
   Future<void> _addNannyDetail() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/add_nanny_detail.php'), // 使用配置文件中的 apiUrl
+        Uri.parse('${Config.apiUrl}/babysitting_app/php/add_nanny_detail.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'user_id': widget.userId,
@@ -32,8 +38,8 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
         },
       );
 
-      print('HTTP status: ${response.statusCode}'); // 打印HTTP状态码
-      print('Response body: ${response.body}'); // 打印响应内容
+      print('HTTP status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
@@ -47,7 +53,7 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Server Error')));
       }
     } catch (e) {
-      print('Error: $e'); // 打印错误信息
+      print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Internet Error: $e')));
     }
   }
@@ -58,9 +64,9 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
       appBar: AppBar(title: Text('Add Nanny Detail')),
       drawer: NanniesSideMenu(
         userId: widget.userId,
-        userEmail: 'example@example.com', // 你需要替换为实际的用户邮箱
-        userType: 'nanny',
-      ), // 使用 NanniesSideMenu
+        userEmail: widget.userEmail, // 使用传递过来的用户邮箱
+        userType: widget.userType,
+      ),
       body: Form(
         key: _formKey,
         child: Padding(
@@ -102,7 +108,7 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     _formKey.currentState?.save();
-                    print('Form saved, calling _addNannyDetail...'); // 调试信息
+                    print('Form saved, calling _addNannyDetail...');
                     _addNannyDetail();
                   }
                 },

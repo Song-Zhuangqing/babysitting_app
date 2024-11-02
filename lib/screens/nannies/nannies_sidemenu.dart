@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../login_screen.dart';
 import '../main_menu.dart';
+import 'nannies_details_add.dart';
 import 'nannies_orders_history.dart';
 import 'nannies_profile.dart';
 import 'nannies_detail.dart';
@@ -90,7 +91,7 @@ class NanniesSideMenu extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => NanniesDetailScreen(
+                  builder: (context) => NanniesDetailsAddScreen(
                     userId: userId,
                     userEmail: userEmail,
                     userType: userType,
@@ -117,7 +118,7 @@ class NanniesSideMenu extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.history),
-            title: Text('Order History'),
+            title: Text('Service History'),
             onTap: () {
               Navigator.pushReplacement(
                 context,
