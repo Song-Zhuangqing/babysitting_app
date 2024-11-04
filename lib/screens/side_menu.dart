@@ -39,21 +39,22 @@ class SideMenu extends StatelessWidget {
             leading: Icon(Icons.home),
             title: Text('Home'),
             onTap: () {
-              Navigator.pushReplacement(
+              Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => MainMenuScreen( // 跳转到新的主页
+                  builder: (context) => MainMenuScreen(
                     userId: userId,
                     userEmail: userEmail,
                     userType: userType,
                   ),
                 ),
+                (route) => false,
               );
             },
           ),
           ListTile(
             leading: Icon(Icons.info),
-            title: Text('Information'), // 将Profile改名为Information
+            title: Text('Information'),
             onTap: () {
               Navigator.pushReplacement(
                 context,
@@ -69,7 +70,7 @@ class SideMenu extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.folder),
-            title: Text('Personal File'), // 新增个人文件跳转
+            title: Text('Personal File'),
             onTap: () {
               Navigator.pushReplacement(
                 context,

@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../../config.dart';
 import '../side_menu.dart';
 import 'parents_child_add.dart';
+import '../main_menu.dart';
 
 class ParentsChildScreen extends StatefulWidget {
   final String userId;
@@ -43,57 +44,75 @@ class _ParentsChildScreenState extends State<ParentsChildScreen> {
           _childrenDetails = List<Map<String, dynamic>>.from(result['details']);
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load details: ${result['message']}')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to load details: ${result['message']}')));
       }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Server Error')));
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Server Error')));
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Child Information'),
-      ),
-      drawer: SideMenu(
-        userId: widget.userId,
-        userEmail: widget.userEmail,
-        userType: widget.userType,
-      ),
-      body: ListView.builder(
-        itemCount: _childrenDetails.length,
-        itemBuilder: (context, index) {
-          final detail = _childrenDetails[index];
-          return Card(
-            child: ListTile(
-              title: Text('Name: ${detail['parents_child_name']}'),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Sex: ${detail['parents_child_sex']}'),
-                  Text('Details: ${detail['parents_child_details']}'),
-                ],
-              ),
+    return WillPopScope(
+      onWillPop: () async {
+        // 返回到主菜单页面，保持用户登录状态
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainMenuScreen(
+              userId: widget.userId,
+              userEmail: widget.userEmail,
+              userType: widget.userType,
             ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => ParentsChildAddScreen(
-                userId: widget.userId,
-                userEmail: widget.userEmail,
-                userType: widget.userType,
+          ),
+        );
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Child Information'),
+        ),
+        drawer: SideMenu(
+          userId: widget.userId,
+          userEmail: widget.userEmail,
+          userType: widget.userType,
+        ),
+        body: ListView.builder(
+          itemCount: _childrenDetails.length,
+          itemBuilder: (context, index) {
+            final detail = _childrenDetails[index];
+            return Card(
+              child: ListTile(
+                title: Text('Name: ${detail['parents_child_name']}'),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Sex: ${detail['parents_child_sex']}'),
+                    Text('Details: ${detail['parents_child_details']}'),
+                  ],
+                ),
               ),
-            ),
-          ).then((_) => _loadChildrenDetails());
-        },
-        child: Icon(Icons.add),
-        tooltip: 'Add Child',
+            );
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ParentsChildAddScreen(
+                  userId: widget.userId,
+                  userEmail: widget.userEmail,
+                  userType: widget.userType,
+                ),
+              ),
+            ).then((_) => _loadChildrenDetails()); // 刷新页面数据
+          },
+          child: Icon(Icons.add),
+          tooltip: 'Add Child',
+        ),
       ),
     );
   }

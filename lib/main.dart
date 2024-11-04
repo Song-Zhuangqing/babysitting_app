@@ -64,7 +64,7 @@ class _StartupLoadingScreenState extends State<StartupLoadingScreen> {
           Container(
             decoration: BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('images/startup_image.png'), // 确保图片路径正确
+                image: AssetImage('assets/images/startup_image.png'), // 确保图片路径正确
                 fit: BoxFit.cover,
               ),
             ),

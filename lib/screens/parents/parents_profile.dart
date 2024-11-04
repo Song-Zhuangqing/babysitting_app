@@ -24,20 +24,17 @@ class ParentsProfileScreen extends StatelessWidget {
 
     return WillPopScope(
       onWillPop: () async {
-        if (!isLoggedIn) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) => MainMenuScreen(
-                userId: userId,
-                userEmail: userEmail,
-                userType: userType,
-              ),
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainMenuScreen(
+              userId: userId,
+              userEmail: userEmail,
+              userType: userType,
             ),
-          );
-          return false;
-        }
-        return true;
+          ),
+        );
+        return false;
       },
       child: Scaffold(
         appBar: AppBar(
