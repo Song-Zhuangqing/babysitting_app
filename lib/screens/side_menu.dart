@@ -4,8 +4,8 @@ import '../screens/parents/parents_child.dart';
 import '../screens/parents/parents_orders_history.dart';
 import '../screens/parents/parents_chat.dart';
 import '../screens/login_screen.dart';
-import '../screens/main_menu.dart'; // 导入新的主页文件
-import 'parents/parents_personal_info.dart'; // 导入个人信息页面
+import '../screens/main_menu.dart';
+import 'parents/parents_personal_info.dart';
 
 class SideMenu extends StatelessWidget {
   final String userId;
@@ -39,7 +39,7 @@ class SideMenu extends StatelessWidget {
             leading: Icon(Icons.home),
             title: Text('Home'),
             onTap: () {
-              Navigator.pushAndRemoveUntil(
+              Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
                   builder: (context) => MainMenuScreen(
@@ -48,7 +48,6 @@ class SideMenu extends StatelessWidget {
                     userType: userType,
                   ),
                 ),
-                (route) => false,
               );
             },
           ),
@@ -126,12 +125,13 @@ class SideMenu extends StatelessWidget {
                   builder: (context) => ParentsOrdersHistoryScreen(
                     userId: userId, 
                     userEmail: userEmail,
+                    userType: userType,
                   ),
                 ),
               );
             },
           ),
-          Spacer(),
+          SizedBox(height: 20), // 调整间距
           ListTile(
             leading: Icon(Icons.logout),
             title: Text('Logout'),

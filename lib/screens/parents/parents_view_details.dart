@@ -54,7 +54,8 @@ class ParentsViewDetailsScreen extends StatelessWidget {
           ),
         );
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to start conversation: ${result['message']}')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to start conversation: ${result['message']}')));
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Server Error')));
@@ -75,10 +76,10 @@ class ParentsViewDetailsScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => ParentsViewInfoScreen(
-                    nannyId: userId, 
-                    userId: parentsId, 
-                    userEmail: parentsName, 
-                    userType: 'parents', // 需要修改变量名
+                    nannyId: userId,
+                    userId: parentsId,
+                    userEmail: parentsName,
+                    userType: 'parents',
                   ),
                 ),
               );
@@ -115,12 +116,14 @@ class ParentsViewDetailsScreen extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
           FloatingActionButton(
+            heroTag: 'chatButton', // 添加唯一的 heroTag
             onPressed: () => _startConversation(context),
             child: Icon(Icons.chat),
             tooltip: 'Start Chat',
           ),
           SizedBox(height: 10),
           FloatingActionButton(
+            heroTag: 'orderButton', // 添加唯一的 heroTag
             onPressed: () {
               Navigator.push(
                 context,
@@ -140,6 +143,7 @@ class ParentsViewDetailsScreen extends StatelessWidget {
           ),
           SizedBox(height: 10),
           FloatingActionButton(
+            heroTag: 'backButton', // 添加唯一的 heroTag
             onPressed: () {
               Navigator.pop(context);
             },

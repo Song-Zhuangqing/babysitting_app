@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // 导入SystemNavigator
+import 'package:flutter/services.dart'; // 导入 SystemNavigator
 import 'nannies/nannies_sidemenu.dart';
-import 'parents/parents_profile.dart'; // 父母端的相关文件
-import 'nannies/nannies_profile.dart'; // 保姆端的相关文件
-import 'side_menu.dart'; // 父母端侧边栏
-import 'login_screen.dart'; // 导入登录页面
-import 'register_parent.dart'; // 父母注册页面
-import 'register_nanny.dart'; // 保姆注册页面
+import 'parents/parents_profile.dart';
+import 'nannies/nannies_profile.dart';
+import 'side_menu.dart';
+import 'login_screen.dart';
+import 'register_parent.dart';
+import 'register_nanny.dart';
 
 class MainMenuScreen extends StatelessWidget {
   final String? userId; // 用户ID可为空
@@ -34,7 +34,17 @@ class MainMenuScreen extends StatelessWidget {
           title: Text('Main Menu'),
         ),
         drawer: isLoggedIn
-            ? _getSideMenuForUserType(context) // 登录后根据用户类型显示侧边栏
+            ? (userType == 'parent'
+                ? SideMenu(
+                    userId: userId!,
+                    userEmail: userEmail!,
+                    userType: userType!,
+                  )
+                : NanniesSideMenu(
+                    userId: userId!,
+                    userEmail: userEmail!,
+                    userType: userType!,
+                  ))
             : null, // 未登录则不显示侧边栏
         body: Padding(
           padding: const EdgeInsets.all(16.0),
@@ -53,7 +63,7 @@ class MainMenuScreen extends StatelessWidget {
                   ),
                   onPressed: () {
                     if (userType == 'parent') {
-                      Navigator.pushAndRemoveUntil(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => NanniesProfileScreen(
@@ -62,10 +72,9 @@ class MainMenuScreen extends StatelessWidget {
                             userType: userType,
                           ),
                         ),
-                        ModalRoute.withName('/main_menu'),
                       );
                     } else {
-                      Navigator.pushAndRemoveUntil(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ParentsProfileScreen(
@@ -74,7 +83,6 @@ class MainMenuScreen extends StatelessWidget {
                             userType: userType,
                           ),
                         ),
-                        ModalRoute.withName('/main_menu'),
                       );
                     }
                   },
@@ -94,7 +102,7 @@ class MainMenuScreen extends StatelessWidget {
                   ),
                   onPressed: () {
                     if (userType == 'parent') {
-                      Navigator.pushAndRemoveUntil(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => ParentsProfileScreen(
@@ -103,10 +111,9 @@ class MainMenuScreen extends StatelessWidget {
                             userType: userType,
                           ),
                         ),
-                        ModalRoute.withName('/main_menu'),
                       );
                     } else {
-                      Navigator.pushAndRemoveUntil(
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => NanniesProfileScreen(
@@ -115,7 +122,6 @@ class MainMenuScreen extends StatelessWidget {
                             userType: userType,
                           ),
                         ),
-                        ModalRoute.withName('/main_menu'),
                       );
                     }
                   },
@@ -202,23 +208,5 @@ class MainMenuScreen extends StatelessWidget {
         );
       },
     );
-  }
-
-  // 根据用户类型显示相应的侧边栏
-  Widget? _getSideMenuForUserType(BuildContext context) {
-    if (userType == 'parent') {
-      return SideMenu(
-        userId: userId!,
-        userEmail: userEmail!,
-        userType: userType!,
-      );
-    } else if (userType == 'nanny') {
-      return NanniesSideMenu(
-        userId: userId!,
-        userEmail: userEmail!,
-        userType: userType!,
-      );
-    }
-    return null;
   }
 }

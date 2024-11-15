@@ -9,10 +9,12 @@ import '../main_menu.dart';
 class ParentsOrdersHistoryScreen extends StatefulWidget {
   final String userId;
   final String userEmail;
+  final String userType; // 添加 userType
 
   ParentsOrdersHistoryScreen({
     required this.userId,
     required this.userEmail,
+    required this.userType, // 初始化 userType
   });
 
   @override
@@ -71,7 +73,7 @@ class _ParentsOrdersHistoryScreenState
             builder: (context) => MainMenuScreen(
               userId: widget.userId,
               userEmail: widget.userEmail,
-              userType: 'Parent',
+              userType: widget.userType, // 传递正确的 userType
             ),
           ),
         );
@@ -84,7 +86,7 @@ class _ParentsOrdersHistoryScreenState
         drawer: SideMenu(
           userId: widget.userId,
           userEmail: widget.userEmail,
-          userType: 'Parent',
+          userType: widget.userType, // 确保传递 userType
         ),
         body: ListView.builder(
           itemCount: _orders.length,
@@ -98,7 +100,7 @@ class _ParentsOrdersHistoryScreenState
                     builder: (context) => ParentsOrdersDetailsScreen(
                       order: order,
                       orderId: order['orders_id'] ?? '', 
-                      userEmail: widget.userEmail, 
+                      userEmail: widget.userEmail,
                     ),
                   ),
                 );
