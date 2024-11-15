@@ -20,8 +20,8 @@ if (!$nanniesId) {
     exit();
 }
 
-// 查询保姆的评价信息
-$sql = "SELECT reviews_content FROM reviews WHERE nannies_id = ?";
+// 查询保姆的评价信息，包括星级
+$sql = "SELECT reviews_content, reviews_star FROM reviews WHERE nannies_id = ?";
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $nanniesId);
 $stmt->execute();

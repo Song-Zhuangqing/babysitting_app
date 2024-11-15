@@ -140,11 +140,12 @@ class _ParentsViewInfoScreenState extends State<ParentsViewInfoScreen> {
                     Text('Certificate: ${nannyDetails!['nannies_certificate'] == '1' ? 'Yes' : 'No'}'),
                     SizedBox(height: 10),
                     nannyDetails!['certificate_image_url'] != null
-                        ? Image.network('${Config.apiUrl}/uploads/${nannyDetails!['certificate_image_url']}')
+                        ? Image.network(
+                          '${Config.apiUrl}/babysitting_app/php/${nannyDetails!['certificate_image_url']}')
                         : Text('No certificate uploaded'),
                     SizedBox(height: 20),
                   ],
-                  // 显示保姆的评价内容
+                  // 显示保姆的评价内容和星级
                   Text(
                     'Reviews:',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -156,7 +157,21 @@ class _ParentsViewInfoScreenState extends State<ParentsViewInfoScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Review Content: ${review['reviews_content']}'),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text('Review Content: ${review['reviews_content']}'),
+                                  ),
+                                  Row(
+                                    children: List.generate(5, (index) {
+                                      return Icon(
+                                        index < (review['reviews_star'] ?? 0) ? Icons.star : Icons.star_border,
+                                        color: Colors.amber,
+                                      );
+                                    }),
+                                  ),
+                                ],
+                              ),
                               Divider(),
                             ],
                           ),

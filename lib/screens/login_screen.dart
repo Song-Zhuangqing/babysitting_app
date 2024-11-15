@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../config.dart'; // 导入配置文件
-import 'parents/parents_profile.dart'; // 导入父母个人主页
-import 'nannies/nannies_profile.dart'; // 导入保姆个人主页
+import 'main_menu.dart';
+// 导入主菜单页面
 import 'register_parent.dart'; // 父母注册页面
 import 'register_nanny.dart'; // 保姆注册页面
 
@@ -20,7 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/login.php'), // 使用配置文件中的 apiUrl
+        Uri.parse('${Config.apiUrl}/babysitting_app/php/login.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'email': email,
@@ -28,8 +28,8 @@ class _LoginScreenState extends State<LoginScreen> {
         },
       );
 
-      print('HTTP status: ${response.statusCode}'); // 打印HTTP状态码
-      print('Response body: ${response.body}'); // 打印响应内容
+      print('HTTP status: ${response.statusCode}');
+      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
@@ -37,29 +37,18 @@ class _LoginScreenState extends State<LoginScreen> {
           String userId = result['user_id'];
           String userType = result['user_type'];
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully Logged In')));
-          if (userType == 'parent') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => ParentsProfileScreen(
-                  userId: userId,
-                  userEmail: email,
-                  userType: userType,
-                ),
-              ), // 跳转到父母个人主页并传递 user_id
-            );
-          } else if (userType == 'nanny') {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (context) => NanniesProfileScreen(
-                  userId: userId,
-                  userEmail: email,
-                  userType: userType,
-                ),
-              ), // 跳转到保姆个人主页并传递 user_id
-            );
-          }
+
+          // 跳转至 MainMenuScreen，并传递用户信息
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainMenuScreen(
+                userId: userId,
+                userEmail: email,
+                userType: userType,
+              ),
+            ),
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Login Failed: ${result['message']}')));
         }
@@ -67,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Server Error')));
       }
     } catch (e) {
-      print('Error: $e'); // 打印错误信息
+      print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Internet Error: $e')));
     }
   }
@@ -111,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () {
                   if (_formKey.currentState?.validate() ?? false) {
                     _formKey.currentState?.save();
-                    print('Form saved, calling _login...'); // 调试信息
+                    print('Form saved, calling _login...');
                     _login();
                   }
                 },

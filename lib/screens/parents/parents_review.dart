@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_rating_bar/flutter_rating_bar.dart'; // 导入 RatingBar 插件
 import 'dart:convert';
 import '../../config.dart';
 import '../side_menu.dart';
@@ -23,6 +24,7 @@ class ParentsReviewScreen extends StatefulWidget {
 
 class _ParentsReviewScreenState extends State<ParentsReviewScreen> {
   final TextEditingController _reviewController = TextEditingController();
+  double _rating = 0; // 用于存储星星评级
 
   Future<void> _submitReview() async {
     final response = await http.post(
@@ -33,10 +35,12 @@ class _ParentsReviewScreenState extends State<ParentsReviewScreen> {
         'orders_id': widget.orderId,
         'nannies_id': widget.nanniesId,
         'reviews_content': _reviewController.text,
+        'reviews_star': _rating.toInt().toString(), // 提交星星个数
       },
     );
 
     print("Submitting review: ${_reviewController.text}");
+    print("Star Rating: $_rating");
     print("Order ID: ${widget.orderId}, Parent ID: ${widget.parentsId}, Nanny ID: ${widget.nanniesId}");
 
     if (response.statusCode == 200) {
@@ -67,6 +71,24 @@ class _ParentsReviewScreenState extends State<ParentsReviewScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: <Widget>[
+            RatingBar.builder(
+              initialRating: 0,
+              minRating: 1,
+              direction: Axis.horizontal,
+              allowHalfRating: false,
+              itemCount: 5,
+              itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+              itemBuilder: (context, _) => Icon(
+                Icons.star,
+                color: Colors.amber,
+              ),
+              onRatingUpdate: (rating) {
+                setState(() {
+                  _rating = rating;
+                });
+              },
+            ),
+            SizedBox(height: 20),
             TextField(
               controller: _reviewController,
               decoration: InputDecoration(
