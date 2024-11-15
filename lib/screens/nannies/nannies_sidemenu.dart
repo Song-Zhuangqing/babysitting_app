@@ -4,9 +4,9 @@ import '../main_menu.dart';
 import 'nannies_details_add.dart';
 import 'nannies_orders_history.dart';
 import 'nannies_profile.dart';
-import 'nannies_detail.dart';
+import 'nannies_detail.dart'; // 导入 nannies_detail.dart
 import 'nannies_chat.dart';
-import 'nannies_personal_info.dart'; // 导入保姆个人信息页面
+import 'nannies_personal_info.dart';
 
 class NanniesSideMenu extends StatelessWidget {
   final String userId;
@@ -43,7 +43,7 @@ class NanniesSideMenu extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => MainMenuScreen( // 跳转到新的主页
+                  builder: (context) => MainMenuScreen(
                     userId: userId,
                     userEmail: userEmail,
                     userType: userType,
@@ -54,7 +54,7 @@ class NanniesSideMenu extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.person),
-            title: Text('Information'), // 改名为Information
+            title: Text('Information'),
             onTap: () {
               Navigator.pushReplacement(
                 context,
@@ -70,12 +70,12 @@ class NanniesSideMenu extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(Icons.file_present),
-            title: Text('Personal File'), // 添加Personal File按钮
+            title: Text('Personal File'),
             onTap: () {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => NanniesPersonalInfoScreen( // 跳转到个人信息页面
+                  builder: (context) => NanniesPersonalInfoScreen(
                     userId: userId,
                     userEmail: userEmail,
                     userType: userType,
@@ -91,7 +91,7 @@ class NanniesSideMenu extends StatelessWidget {
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => NanniesDetailsAddScreen(
+                  builder: (context) => NanniesDetailScreen(
                     userId: userId,
                     userEmail: userEmail,
                     userType: userType,

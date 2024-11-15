@@ -14,12 +14,12 @@ class _RegisterParentScreenState extends State<RegisterParentScreen> {
   String phone = '';
   String gender = ''; // 初始值为空
   String email = '';
-  String addressLine1 = ''; // 地址第一行
-  String addressLine2 = ''; // 地址第二行
-  String city = ''; // 城市
-  String state = ''; // 州
-  String postalCode = ''; // 邮政编码
-  String country = ''; // 国家
+  String address = ''; // 地址
+  // String addressLine2 = ''; // 地址第二行
+  // String city = ''; // 城市
+  // String state = ''; // 州
+  // String postalCode = ''; // 邮政编码
+  // String country = ''; // 国家
   String password = '';
 
   Future<void> _register() async {
@@ -32,12 +32,12 @@ class _RegisterParentScreenState extends State<RegisterParentScreen> {
           'phone': phone,
           'gender': gender,
           'email': email,
-          'address_line1': addressLine1,
-          'address_line2': addressLine2,
-          'city': city,
-          'state': state,
-          'postal_code': postalCode,
-          'country': country,
+          'address': address,
+          // 'address_line2': addressLine2,
+          // 'city': city,
+          // 'state': state,
+          // 'postal_code': postalCode,
+          // 'country': country,
           'password': password,
         },
       );
@@ -136,15 +136,17 @@ class _RegisterParentScreenState extends State<RegisterParentScreen> {
                 onSaved: (value) => email = value ?? '',
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Address Line 1'),
+                decoration: InputDecoration(labelText: 'Address'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your address';
                   }
                   return null;
                 },
-                onSaved: (value) => addressLine1 = value ?? '',
+                onSaved: (value) => address = value ?? '',
               ),
+              // 注释掉其他地址信息字段
+              /*
               TextFormField(
                 decoration: InputDecoration(labelText: 'Address Line 2'),
                 onSaved: (value) => addressLine2 = value ?? '',
@@ -189,6 +191,7 @@ class _RegisterParentScreenState extends State<RegisterParentScreen> {
                 },
                 onSaved: (value) => country = value ?? '',
               ),
+              */
               TextFormField(
                 decoration: InputDecoration(labelText: 'Password'),
                 obscureText: true,

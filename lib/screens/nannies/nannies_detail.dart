@@ -28,47 +28,34 @@ class NanniesDetailScreen extends StatelessWidget {
         userType: userType,
       ),
       body: NanniesDetailsList(userId: userId),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => NanniesDetailsAddScreen(
-                    userId: userId,
-                    userEmail: userEmail,
-                    userType: userType,
-                  ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // 跳转到添加信息页面
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NanniesDetailsAddScreen(
+                userId: userId,
+                userEmail: userEmail,
+                userType: userType,
+              ),
+            ),
+          ).then((_) {
+            // 回到当前页面并刷新数据
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => NanniesDetailScreen(
+                  userId: userId,
+                  userEmail: userEmail,
+                  userType: userType,
                 ),
-              ).then((_) => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => NanniesDetailScreen(
-                          userId: userId, userEmail: userEmail, userType: userType))));
-            },
-            child: Icon(Icons.add),
-            tooltip: 'Add',
-          ),
-          SizedBox(height: 10),
-          FloatingActionButton(
-            onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => NanniesDetailScreen(
-                    userId: userId,
-                    userEmail: userEmail,
-                    userType: userType,
-                  ),
-                ),
-              );
-            },
-            child: Icon(Icons.refresh),
-            tooltip: 'Refresh',
-          ),
-        ],
+              ),
+            );
+          });
+        },
+        child: Icon(Icons.add),
+        tooltip: 'Add Details',
       ),
     );
   }
@@ -102,9 +89,6 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
           'nannies_id': widget.userId,
         },
       );
-
-      print('HTTP status: ${response.statusCode}');
-      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final result = json.decode(response.body);

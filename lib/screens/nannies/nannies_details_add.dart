@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config.dart';
 import 'nannies_sidemenu.dart'; // 导入 NanniesSideMenu 组件
+import 'nannies_detail.dart'; // 导入 NanniesDetailScreen 页面
 
 class NanniesDetailsAddScreen extends StatefulWidget {
   final String userId;
@@ -45,7 +46,16 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
         final result = json.decode(response.body);
         if (result['status'] == 'success') {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully Added')));
-          Navigator.pop(context, true); // 回到详情页面，并传递一个标志以便重新加载数据
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => NanniesDetailScreen(
+                userId: widget.userId,
+                userEmail: widget.userEmail,
+                userType: widget.userType,
+              ),
+            ),
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to Add: ${result['message']}')));
         }

@@ -2,26 +2,29 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "babysitting_app";
+$dbname = "cbcp";
 
-// 创建数据库连接
+// Create database connection
 $conn = new mysqli($servername, $username, $password, $dbname);
 
-// 检查连接
+// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// 获取POST请求中的字段
+// Get POST request fields
 $name = $_POST['name'];
 $phone = $_POST['phone'];
 $gender = $_POST['gender'];
 $email = $_POST['email'];
 $address = $_POST['address'];
 $password = $_POST['password'];
-$nanniesCertificate = $_POST['nannies_certificate'];
+$nannies_certificate = $_POST['nannies_certificate'];
 
-// 检查是否上传了证书图片
+// Encrypt the password
+$hashed_password = password_hash($password, PASSWORD_BCRYPT); // 使用 BCRYPT 加密算法
+
+// Check for certificate image upload
 $certificate_image_url = '';
 if (isset($_FILES['certificate_image_url'])) {
     $file_tmp = $_FILES['certificate_image_url']['tmp_name'];
@@ -37,9 +40,9 @@ if (isset($_FILES['certificate_image_url'])) {
     }
 }
 
-// 插入数据到数据库
-$sql = "INSERT INTO nannies (name, phone, gender, email, address, password, nannies_certificate, certificate_image_url) 
-        VALUES ('$name', '$phone', '$gender', '$email', '$address', '$password', '$nanniesCertificate', '$certificate_image_url')";
+// Insert data into the database with the hashed password
+$sql = "INSERT INTO nannies (nannies_name, nannies_phone, nannies_sex, nannies_email, nannies_address, nannies_password, nannies_certificate, certificate_image_url) 
+        VALUES ('$name', '$phone', '$gender', '$email', '$address', '$hashed_password', '$nannies_certificate', '$certificate_image_url')";
 
 if ($conn->query($sql) === TRUE) {
     echo json_encode(['status' => 'success']);
@@ -47,6 +50,7 @@ if ($conn->query($sql) === TRUE) {
     echo json_encode(['status' => 'error', 'message' => $conn->error]);
 }
 
-// 关闭连接
+// Close connection
 $conn->close();
 ?>
+    
