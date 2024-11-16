@@ -3,7 +3,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "babysitting_db"; // 数据库名称
+$dbname = "cbcp"; // 数据库名称
 
 // 创建数据库连接
 $conn = new mysqli($servername, $username, $password, $dbname);

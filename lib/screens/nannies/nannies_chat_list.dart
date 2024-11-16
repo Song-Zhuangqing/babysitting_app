@@ -8,10 +8,12 @@ import 'nannies_sidemenu.dart';
 class NanniesChatListScreen extends StatelessWidget {
   final String userId;
   final String userEmail;
+  final String userType; // 确保传递 userType
 
   NanniesChatListScreen({
     required this.userId,
     required this.userEmail,
+    required this.userType, // 初始化 userType
   });
 
   @override
@@ -23,9 +25,13 @@ class NanniesChatListScreen extends StatelessWidget {
       drawer: NanniesSideMenu(
         userId: userId,
         userEmail: userEmail,
-        userType: 'nanny',
+        userType: userType, // 确保传递 userType
       ),
-      body: ChatList(userId: userId),
+      body: ChatList(
+        userId: userId,
+        userEmail: userEmail, // 确保传递 userEmail
+        userType: userType, // 确保传递 userType
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // 触发刷新操作
@@ -35,6 +41,7 @@ class NanniesChatListScreen extends StatelessWidget {
               builder: (context) => NanniesChatListScreen(
                 userId: userId,
                 userEmail: userEmail,
+                userType: userType, // 确保传递 userType
               ),
             ),
           );
@@ -49,8 +56,14 @@ class NanniesChatListScreen extends StatelessWidget {
 
 class ChatList extends StatefulWidget {
   final String userId;
+  final String userEmail; // 添加 userEmail 参数
+  final String userType; // 添加 userType 参数
 
-  ChatList({required this.userId});
+  ChatList({
+    required this.userId,
+    required this.userEmail, // 初始化 userEmail
+    required this.userType, // 初始化 userType
+  });
 
   @override
   _ChatListState createState() => _ChatListState();
@@ -82,7 +95,9 @@ class _ChatListState extends State<ChatList> {
           _conversations = List<Map<String, dynamic>>.from(result['conversations']);
         });
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to load conversations: ${result['message']}')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load conversations: ${result['message']}')),
+        );
       }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Server Error')));
@@ -102,6 +117,8 @@ class _ChatListState extends State<ChatList> {
               MaterialPageRoute(
                 builder: (context) => ChatScreen(
                   userId: widget.userId,
+                  userEmail: widget.userEmail, // 传递 userEmail
+                  userType: widget.userType, // 传递 userType
                   conversationId: conversation['conversation_id'].toString(),
                   senderType: 'nanny',
                 ),

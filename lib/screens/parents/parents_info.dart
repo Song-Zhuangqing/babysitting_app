@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config.dart';
-import 'nannies_sidemenu.dart'; // 导入保姆端的侧边栏
+import '../side_menu.dart'; // 导入父母端的侧边栏
+import '../main_menu.dart'; // 导入主菜单界面
 
-class NanniesInfoScreen extends StatelessWidget {
+class ParentsInfoScreen extends StatelessWidget {
   final String? userId;
   final String? userEmail;
   final String? userType;
 
-  NanniesInfoScreen({
+  ParentsInfoScreen({
     this.userId,
     this.userEmail,
     this.userType,
@@ -21,16 +22,16 @@ class NanniesInfoScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Nannies Information'),
+        title: Text('Parents Posted Needs'),
       ),
       drawer: isLoggedIn
-          ? NanniesSideMenu(
+          ? SideMenu(
               userId: userId!,
               userEmail: userEmail!,
               userType: userType!,
             )
           : null,
-      body: NanniesDetailsList(
+      body: ParentsNeedsList(
         userId: userId,
         userEmail: userEmail,
         userType: userType,
@@ -39,36 +40,36 @@ class NanniesInfoScreen extends StatelessWidget {
   }
 }
 
-class NanniesDetailsList extends StatefulWidget {
+class ParentsNeedsList extends StatefulWidget {
   final String? userId;
   final String? userEmail;
   final String? userType;
 
-  NanniesDetailsList({
+  ParentsNeedsList({
     this.userId,
     this.userEmail,
     this.userType,
   });
 
   @override
-  _NanniesDetailsListState createState() => _NanniesDetailsListState();
+  _ParentsNeedsListState createState() => _ParentsNeedsListState();
 }
 
-class _NanniesDetailsListState extends State<NanniesDetailsList> {
-  List<Map<String, dynamic>> _nannyDetails = [];
+class _ParentsNeedsListState extends State<ParentsNeedsList> {
+  List<Map<String, dynamic>> _needsDetails = [];
   List<Map<String, dynamic>> _filteredDetails = [];
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    _loadNannyDetails();
+    _loadNeedsDetails();
     _searchController.addListener(_onSearchChanged);
   }
 
-  Future<void> _loadNannyDetails() async {
+  Future<void> _loadNeedsDetails() async {
     final response = await http.post(
-      Uri.parse('${Config.apiUrl}/babysitting_app/php/get_all_nanny_details.php'),
+      Uri.parse('${Config.apiUrl}/babysitting_app/php/get_all_parents_child.php'),
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
     );
 
@@ -76,8 +77,8 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
       final result = json.decode(response.body);
       if (result['status'] == 'success') {
         setState(() {
-          _nannyDetails = List<Map<String, dynamic>>.from(result['details']);
-          _filteredDetails = _nannyDetails;
+          _needsDetails = List<Map<String, dynamic>>.from(result['details']);
+          _filteredDetails = _needsDetails;
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -93,12 +94,12 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
 
   void _onSearchChanged() {
     setState(() {
-      _filteredDetails = _nannyDetails
+      _filteredDetails = _needsDetails
           .where((detail) =>
-              detail['nannies_name']
+              detail['parents_child_name']
                   .toLowerCase()
                   .contains(_searchController.text.toLowerCase()) ||
-              detail['nannies_details_content']
+              detail['parents_child_details']
                   .toLowerCase()
                   .contains(_searchController.text.toLowerCase()))
           .toList();
@@ -109,6 +110,13 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _navigateToDetailScreen(String childName, String childDetails, String childId) {
+    // 父母用户只能浏览列表，不能点击查看详细信息
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Parents can only browse and cannot view details')),
+    );
   }
 
   @override
@@ -130,17 +138,22 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
             itemCount: _filteredDetails.length,
             itemBuilder: (context, index) {
               final detail = _filteredDetails[index];
-              return Card(
-                child: ListTile(
-                  title: Text('Name: ${detail['nannies_name']}'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Price: ${detail['nannies_details_price']}'),
-                      Text('Content: ${detail['nannies_details_content']}'),
-                      Text('Location: ${detail['nannies_details_location']}'),
-                      Text('Date: ${detail['nannies_details_date']}'),
-                    ],
+              return GestureDetector(
+                onTap: () => _navigateToDetailScreen(
+                  detail['parents_child_name'],
+                  detail['parents_child_details'],
+                  detail['parents_id'],
+                ),
+                child: Card(
+                  child: ListTile(
+                    title: Text('Child Name: ${detail['parents_child_name']}'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Age: ${detail['parents_child_age']}'),
+                        Text('Details: ${detail['parents_child_details']}'),
+                      ],
+                    ),
                   ),
                 ),
               );

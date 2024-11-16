@@ -168,11 +168,13 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
             },
             child: Text('Login'),
           ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
+          TextButton(onPressed: () {
+              Navigator.of(context).pop();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => MainMenuScreen()),
+              );
             },
-            child: Text('Cancel'),
+            child: Text('Back to Menu'),
           ),
         ],
       ),

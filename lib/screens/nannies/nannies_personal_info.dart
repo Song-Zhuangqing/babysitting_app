@@ -49,7 +49,7 @@ class _NanniesPersonalInfoScreenState extends State<NanniesPersonalInfoScreen> {
         if (result['status'] == 'success') {
           setState(() {
             userInfo = result['data'];
-            print('Image URL: ${userInfo!['certificate_image_url']}'); // 调试信息
+            print('Image URL: ${userInfo!['certificate_image_url']}'); // 在php中配置IP地址调试信息
           });
         } else {
           ScaffoldMessenger.of(context).showSnackBar(

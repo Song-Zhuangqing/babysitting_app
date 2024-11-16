@@ -31,34 +31,40 @@ class ParentsViewDetailsScreen extends StatelessWidget {
   });
 
   Future<void> _startConversation(BuildContext context) async {
-    final response = await http.post(
-      Uri.parse('${Config.apiUrl}/babysitting_app/php/create_conversation.php'),
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: {
-        'parents_id': parentsId,
-        'nannies_id': userId,
-      },
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('${Config.apiUrl}/babysitting_app/php/create_conversation.php'),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {
+          'parents_id': parentsId,
+          'nannies_id': userId,
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final result = json.decode(response.body);
-      if (result['status'] == 'success') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatScreen(
-              userId: parentsId,
-              conversationId: result['conversation_id'].toString(),
-              senderType: 'parent',
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result['status'] == 'success') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatScreen(
+                userId: parentsId,
+                userEmail: parentsName,
+                conversationId: result['conversation_id'].toString(),
+                senderType: 'parent',
+                userType: 'parent',
+              ),
             ),
-          ),
-        );
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to start conversation: ${result['message']}')));
+        }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to start conversation: ${result['message']}')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Server Error')));
       }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Server Error')));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Network Error: $e')));
     }
   }
 
@@ -79,7 +85,7 @@ class ParentsViewDetailsScreen extends StatelessWidget {
                     nannyId: userId,
                     userId: parentsId,
                     userEmail: parentsName,
-                    userType: 'parents',
+                    userType: 'parent',
                   ),
                 ),
               );
@@ -91,24 +97,24 @@ class ParentsViewDetailsScreen extends StatelessWidget {
       drawer: SideMenu(
         userId: parentsId,
         userEmail: parentsName,
-        userType: 'Parent',
+        userType: 'parent',
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text('Name: $nanniesName'),
+            Text('Name: $nanniesName', style: TextStyle(fontSize: 18)),
             SizedBox(height: 10),
-            Text('Email: $nanniesEmail'),
+            Text('Email: $nanniesEmail', style: TextStyle(fontSize: 18)),
             SizedBox(height: 10),
-            Text('Date: $nanniesDetailsDate'),
+            Text('Date: $nanniesDetailsDate', style: TextStyle(fontSize: 18)),
             SizedBox(height: 10),
-            Text('Price: $nanniesDetailsPrice'),
+            Text('Price: $nanniesDetailsPrice', style: TextStyle(fontSize: 18)),
             SizedBox(height: 10),
-            Text('Content: $nanniesDetailsContent'),
+            Text('Content: $nanniesDetailsContent', style: TextStyle(fontSize: 18)),
             SizedBox(height: 10),
-            Text('Location: $nanniesDetailsLocation'),
+            Text('Location: $nanniesDetailsLocation', style: TextStyle(fontSize: 18)),
           ],
         ),
       ),

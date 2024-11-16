@@ -21,7 +21,6 @@ class ParentsChatScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // 返回到已登录状态的主菜单页面
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -43,10 +42,13 @@ class ParentsChatScreen extends StatelessWidget {
           userEmail: userEmail,
           userType: userType,
         ),
-        body: ParentsChatList(userId: userId),
+        body: ParentsChatList(
+          userId: userId,
+          userEmail: userEmail,
+          userType: userType,
+        ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            // 重新加载当前页面以刷新会话列表
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
@@ -68,8 +70,14 @@ class ParentsChatScreen extends StatelessWidget {
 
 class ParentsChatList extends StatefulWidget {
   final String userId;
+  final String userEmail;
+  final String userType;
 
-  ParentsChatList({required this.userId});
+  ParentsChatList({
+    required this.userId,
+    required this.userEmail,
+    required this.userType,
+  });
 
   @override
   _ParentsChatListState createState() => _ParentsChatListState();
@@ -91,9 +99,6 @@ class _ParentsChatListState extends State<ParentsChatList> {
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {'parents_id': widget.userId},
       );
-
-      print('HTTP status: ${response.statusCode}');
-      print('Response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
@@ -131,6 +136,8 @@ class _ParentsChatListState extends State<ParentsChatList> {
               MaterialPageRoute(
                 builder: (context) => ChatScreen(
                   userId: widget.userId,
+                  userEmail: widget.userEmail, // 传递 userEmail
+                  userType: widget.userType,    // 传递 userType
                   conversationId: conversation['conversation_id'].toString(),
                   senderType: 'parent',
                 ),

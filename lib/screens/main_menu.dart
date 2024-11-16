@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; // 导入 SystemNavigator
 import 'nannies/nannies_sidemenu.dart';
+import 'parents/parents_info.dart';
 import 'parents/parents_profile.dart';
 import 'nannies/nannies_profile.dart';
 import 'side_menu.dart';
 import 'login_screen.dart';
 import 'register_parent.dart';
 import 'register_nanny.dart';
+import 'nannies/nannies_info.dart'; // 导入 nannies_info 页面
 
 class MainMenuScreen extends StatelessWidget {
   final String? userId; // 用户ID可为空
@@ -62,11 +64,11 @@ class MainMenuScreen extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
-                    if (userType == 'parent') {
+                    if (userType == 'nanny') {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => NanniesProfileScreen(
+                          builder: (context) => NanniesInfoScreen(
                             userId: userId,
                             userEmail: userEmail,
                             userType: userType,
@@ -105,7 +107,7 @@ class MainMenuScreen extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ParentsProfileScreen(
+                          builder: (context) => ParentsInfoScreen(
                             userId: userId,
                             userEmail: userEmail,
                             userType: userType,

@@ -1,4 +1,7 @@
 <?php
+// 引入 config.php
+include 'config.php';
+
 // 设置响应头
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
@@ -41,7 +44,7 @@ if ($result->num_rows > 0) {
     $user_info = $result->fetch_assoc();
     $user_info['nannies_certificate'] = (int)$user_info['nannies_certificate'];
     if ($user_info['certificate_image_url']) {
-        $user_info['certificate_image_url'] = "http://192.168.43.250/babysitting_app/php/" . $user_info['certificate_image_url'];
+        $user_info['certificate_image_url'] = BASE_URL . "/" . $user_info['certificate_image_url'];
     }
 
     echo json_encode(['status' => 'success', 'data' => $user_info]);

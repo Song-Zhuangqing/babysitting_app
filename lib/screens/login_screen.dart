@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../config.dart'; // 导入配置文件
-import 'main_menu.dart';
-// 导入主菜单页面
+import 'main_menu.dart'; // 导入主菜单页面
 import 'register_parent.dart'; // 父母注册页面
 import 'register_nanny.dart'; // 保姆注册页面
 
@@ -63,72 +62,84 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('Login')),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: <Widget>[
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Email'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your email';
-                  }
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-                    return 'Please enter a valid email address';
-                  }
-                  return null;
-                },
-                onSaved: (value) => email = value ?? '',
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your password';
-                  }
-                  return null;
-                },
-                onSaved: (value) => password = value ?? '',
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    _formKey.currentState?.save();
-                    print('Form saved, calling _login...');
-                    _login();
-                  }
-                },
-                child: Text('Login'),
-              ),
-              SizedBox(height: 20),
-              // 父母注册按钮
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RegisterParentScreen()),
-                  );
-                },
-                child: Text('Register as Parent'),
-              ),
-              SizedBox(height: 10),
-              // 保姆注册按钮
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => RegisterNannyScreen()),
-                  );
-                },
-                child: Text('Register as Nanny'),
-              ),
-            ],
+    return WillPopScope(
+      onWillPop: () async {
+        // 当用户按下返回按钮时，跳转到未登录状态的 MainMenuScreen
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainMenuScreen(), // 不传递用户信息以保持未登录状态
+          ),
+        );
+        return false; // 阻止默认的返回行为
+      },
+      child: Scaffold(
+        appBar: AppBar(title: Text('Login')),
+        body: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: <Widget>[
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Email'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    }
+                    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                      return 'Please enter a valid email address';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) => email = value ?? '',
+                ),
+                TextFormField(
+                  decoration: InputDecoration(labelText: 'Password'),
+                  obscureText: true,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your password';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) => password = value ?? '',
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState?.validate() ?? false) {
+                      _formKey.currentState?.save();
+                      print('Form saved, calling _login...');
+                      _login();
+                    }
+                  },
+                  child: Text('Login'),
+                ),
+                SizedBox(height: 20),
+                // 父母注册按钮
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RegisterParentScreen()),
+                    );
+                  },
+                  child: Text('Register as Parent'),
+                ),
+                SizedBox(height: 10),
+                // 保姆注册按钮
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => RegisterNannyScreen()),
+                    );
+                  },
+                  child: Text('Register as Nanny'),
+                ),
+              ],
+            ),
           ),
         ),
       ),

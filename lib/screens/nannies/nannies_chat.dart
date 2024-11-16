@@ -27,7 +27,11 @@ class NanniesChatScreen extends StatelessWidget {
         userEmail: userEmail,
         userType: userType,
       ),  // 使用 NanniesSideMenu
-      body: NanniesChatList(userId: userId),
+      body: NanniesChatList(
+        userId: userId,
+        userEmail: userEmail,
+        userType: userType,
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           // 触发刷新操作
@@ -51,8 +55,14 @@ class NanniesChatScreen extends StatelessWidget {
 
 class NanniesChatList extends StatefulWidget {
   final String userId;
+  final String userEmail;
+  final String userType;
 
-  NanniesChatList({required this.userId});
+  NanniesChatList({
+    required this.userId,
+    required this.userEmail,
+    required this.userType,
+  });
 
   @override
   _NanniesChatListState createState() => _NanniesChatListState();
@@ -75,9 +85,6 @@ class _NanniesChatListState extends State<NanniesChatList> {
         'nannies_id': widget.userId,
       },
     );
-
-    print('HTTP status: ${response.statusCode}'); // 打印HTTP状态码
-    print('Response body: ${response.body}'); // 打印响应内容
 
     if (response.statusCode == 200) {
       final result = json.decode(response.body);
@@ -111,6 +118,8 @@ class _NanniesChatListState extends State<NanniesChatList> {
                 MaterialPageRoute(
                   builder: (context) => ChatScreen(
                     userId: widget.userId,
+                    userEmail: widget.userEmail, // 传递 userEmail
+                    userType: widget.userType,   // 传递 userType
                     conversationId: conversation['conversation_id'].toString(),
                     senderType: 'nanny',
                   ),

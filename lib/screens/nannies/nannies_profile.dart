@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config.dart';
+import '../login_screen.dart';
+import '../main_menu.dart';
 import 'nannies_sidemenu.dart'; // 导入侧边栏
 import 'nannies_child_details.dart'; // 导入详细信息页面
-import '../login_screen.dart'; // 导入登录界面
-import '../main_menu.dart'; // 导入主菜单界面
 
 class NanniesProfileScreen extends StatelessWidget {
   final String? userId;
@@ -70,28 +70,32 @@ class _ParentsChildListState extends State<ParentsChildList> {
   }
 
   Future<void> _loadChildDetails() async {
-    final response = await http.post(
-      Uri.parse('${Config.apiUrl}/babysitting_app/php/get_all_parents_child.php'),
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    );
-
-    if (response.statusCode == 200) {
-      final result = json.decode(response.body);
-      if (result['status'] == 'success') {
-        setState(() {
-          _childDetails = List<Map<String, dynamic>>.from(result['details']);
-          _filteredDetails = _childDetails;
-        });
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load details: ${result['message']}')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Server Error')),
+    try {
+      final response = await http.post(
+        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_all_parents_child.php'),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       );
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result['status'] == 'success') {
+          setState(() {
+            _childDetails = List<Map<String, dynamic>>.from(result['details']);
+            _filteredDetails = _childDetails;
+          });
+        } else {
+          _showSnackBar('Failed to load details: ${result['message']}');
+        }
+      } else {
+        _showSnackBar('Server Error');
+      }
+    } catch (e) {
+      _showSnackBar('Network Error: $e');
     }
+  }
+
+  void _showSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _onSearchChanged() {
@@ -116,23 +120,24 @@ class _ParentsChildListState extends State<ParentsChildList> {
 
   void _navigateToDetailScreen(String childName, String childDetails, String childId) {
     if (widget.userId != null) {
-      Navigator.push(
-        context,
+      Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => NanniesChildDetailsScreen(
             childName: childName,
             childDetails: childDetails,
             childId: childId,
             nanniesId: widget.userId!,
+            userEmail: widget.userEmail!, // 添加 userEmail
+            userType: widget.userType!,   // 添加 userType
           ),
         ),
       );
     } else {
-      _showLoginPrompt(context);
+      _showLoginPrompt();
     }
   }
 
-  void _showLoginPrompt(BuildContext context) {
+  void _showLoginPrompt() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -141,8 +146,8 @@ class _ParentsChildListState extends State<ParentsChildList> {
         actions: <Widget>[
           TextButton(
             onPressed: () {
-              Navigator.pushReplacement(
-                context,
+              Navigator.of(context).pop();
+              Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => LoginScreen()),
               );
             },
@@ -150,9 +155,9 @@ class _ParentsChildListState extends State<ParentsChildList> {
           ),
           TextButton(
             onPressed: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => MainMenuScreen()), // 返回到主菜单
+              Navigator.of(context).pop();
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (context) => MainMenuScreen()),
               );
             },
             child: Text('Back to Menu'),

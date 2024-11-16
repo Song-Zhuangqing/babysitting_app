@@ -5,7 +5,6 @@ import '../../config.dart';
 import '../chat.dart';
 import '../side_menu.dart';
 
-
 class ParentsChatListScreen extends StatelessWidget {
   final String userId;
   final String userEmail;
@@ -26,10 +25,14 @@ class ParentsChatListScreen extends StatelessWidget {
         userEmail: userEmail,
         userType: 'parent',
       ),
-      body: ChatList(userId: userId),
+      body: ChatList(
+        userId: userId,
+        userEmail: userEmail, // 传递 userEmail
+        userType: 'parent',   // 传递用户类型
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Trigger refresh
+          // 触发刷新操作
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -50,8 +53,14 @@ class ParentsChatListScreen extends StatelessWidget {
 
 class ChatList extends StatefulWidget {
   final String userId;
+  final String userEmail; // 添加 userEmail
+  final String userType;  // 添加 userType
 
-  ChatList({required this.userId});
+  ChatList({
+    required this.userId,
+    required this.userEmail, // 初始化 userEmail
+    required this.userType,  // 初始化 userType
+  });
 
   @override
   _ChatListState createState() => _ChatListState();
@@ -103,6 +112,8 @@ class _ChatListState extends State<ChatList> {
               MaterialPageRoute(
                 builder: (context) => ChatScreen(
                   userId: widget.userId,
+                  userEmail: widget.userEmail, // 传递 userEmail
+                  userType: widget.userType,   // 传递 userType
                   conversationId: conversation['conversation_id'].toString(),
                   senderType: 'parent',
                 ),
