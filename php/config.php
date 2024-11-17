@@ -5,7 +5,7 @@
 define("SERVER_IP", "192.168.43.250");
 
 // 定义根 URL（通常是 IP 地址 + 项目路径）
-define("BASE_URL", "http://" . SERVER_IP . "/babysitting_app");
+define("BASE_URL", "http://" . SERVER_IP . "/babysitting_app/php");
 
 // 可以在此处定义其他配置，例如数据库配置
 define("DB_HOST", "localhost");

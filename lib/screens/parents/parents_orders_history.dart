@@ -99,7 +99,6 @@ class _ParentsOrdersHistoryScreenState
                   MaterialPageRoute(
                     builder: (context) => ParentsOrdersDetailsScreen(
                       order: order,
-                      orderId: order['orders_id'] ?? '', 
                       userEmail: widget.userEmail,
                     ),
                   ),

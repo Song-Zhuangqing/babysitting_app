@@ -65,7 +65,7 @@ class _ParentsReviewScreenState extends State<ParentsReviewScreen> {
       drawer: SideMenu(
         userId: widget.parentsId,
         userEmail: widget.userEmail, // 传递邮箱给侧边栏
-        userType: 'Parent',
+        userType: 'parent',
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
