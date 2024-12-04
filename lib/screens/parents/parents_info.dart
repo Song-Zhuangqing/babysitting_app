@@ -68,26 +68,32 @@ class _ParentsNeedsListState extends State<ParentsNeedsList> {
   }
 
   Future<void> _loadNeedsDetails() async {
-    final response = await http.post(
-      Uri.parse('${Config.apiUrl}/babysitting_app/php/get_all_parents_child.php'),
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_all_parents_child.php'),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      );
 
-    if (response.statusCode == 200) {
-      final result = json.decode(response.body);
-      if (result['status'] == 'success') {
-        setState(() {
-          _needsDetails = List<Map<String, dynamic>>.from(result['details']);
-          _filteredDetails = _needsDetails;
-        });
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result['status'] == 'success') {
+          setState(() {
+            _needsDetails = List<Map<String, dynamic>>.from(result['details']);
+            _filteredDetails = _needsDetails;
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to load details: ${result['message']}')),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load details: ${result['message']}')),
+          SnackBar(content: Text('Server Error')),
         );
       }
-    } else {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Server Error')),
+        SnackBar(content: Text('Network Error: $e')),
       );
     }
   }
@@ -112,13 +118,6 @@ class _ParentsNeedsListState extends State<ParentsNeedsList> {
     super.dispose();
   }
 
-  void _navigateToDetailScreen(String childName, String childDetails, String childId) {
-    // 父母用户只能浏览列表，不能点击查看详细信息
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Parents can only browse and cannot view details')),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -138,22 +137,16 @@ class _ParentsNeedsListState extends State<ParentsNeedsList> {
             itemCount: _filteredDetails.length,
             itemBuilder: (context, index) {
               final detail = _filteredDetails[index];
-              return GestureDetector(
-                onTap: () => _navigateToDetailScreen(
-                  detail['parents_child_name'],
-                  detail['parents_child_details'],
-                  detail['parents_id'],
-                ),
-                child: Card(
-                  child: ListTile(
-                    title: Text('Child Name: ${detail['parents_child_name']}'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Age: ${detail['parents_child_age']}'),
-                        Text('Details: ${detail['parents_child_details']}'),
-                      ],
-                    ),
+              return Card(
+                child: ListTile(
+                  title: Text('Child Name: ${detail['parents_child_name']}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Sex: ${detail['parents_child_sex'] ?? 'N/A'}'),
+                      Text('Details: ${detail['parents_child_details']}'),
+                      // 若需要额外字段，可以在此处添加显示逻辑
+                    ],
                   ),
                 ),
               );

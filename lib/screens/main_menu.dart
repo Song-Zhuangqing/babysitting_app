@@ -51,125 +51,138 @@ class MainMenuScreen extends StatelessWidget {
         body: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
-              // 查看保姆信息按钮
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                  ),
-                  onPressed: () {
-                    if (userType == 'nanny') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => NanniesInfoScreen(
-                            userId: userId,
-                            userEmail: userEmail,
-                            userType: userType,
-                          ),
-                        ),
-                      );
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ParentsProfileScreen(
-                            userId: userId,
-                            userEmail: userEmail,
-                            userType: userType,
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                  child: Text('View Nannies Information'),
-                ),
+              // 添加图片
+              Image.asset(
+                'assets/images/main_menu.png',
+                width: 150,
+                height: 150,
+                fit: BoxFit.cover,
               ),
               SizedBox(height: 20),
-              // 查看父母需求按钮
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16.0),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
+              Column(
+                children: [
+                  // 查看保姆信息按钮
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 16.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                      ),
+                      onPressed: () {
+                        if (userType == 'nanny') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NanniesInfoScreen(
+                                userId: userId,
+                                userEmail: userEmail,
+                                userType: userType,
+                              ),
+                            ),
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ParentsProfileScreen(
+                                userId: userId,
+                                userEmail: userEmail,
+                                userType: userType,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      child: Text('View Nannies Information'),
                     ),
                   ),
-                  onPressed: () {
-                    if (userType == 'parent') {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ParentsInfoScreen(
-                            userId: userId,
-                            userEmail: userEmail,
-                            userType: userType,
-                          ),
+                  SizedBox(height: 10),
+                  // 查看父母需求按钮
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(vertical: 16.0),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
                         ),
-                      );
-                    } else {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => NanniesProfileScreen(
-                            userId: userId,
-                            userEmail: userEmail,
-                            userType: userType,
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                  child: Text('View Parents Needs'),
-                ),
+                      ),
+                      onPressed: () {
+                        if (userType == 'parent') {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ParentsInfoScreen(
+                                userId: userId,
+                                userEmail: userEmail,
+                                userType: userType,
+                              ),
+                            ),
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => NanniesProfileScreen(
+                                userId: userId,
+                                userEmail: userEmail,
+                                userType: userType,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      child: Text('View Parents Needs'),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: 20),
-              // 如果未登录，则显示 Login 和 Register 按钮
-              if (!isLoggedIn) ...[
-                // 登录按钮
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 16.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+              if (!isLoggedIn)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // 登录按钮
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 14.0), backgroundColor: Colors.lightBlueAccent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => LoginScreen()),
+                          );
+                        },
+                        child: Text('Login'),
                       ),
                     ),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => LoginScreen()),
-                      );
-                    },
-                    child: Text('Login'),
-                  ),
-                ),
-                SizedBox(height: 10),
-                // 注册按钮
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(vertical: 16.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
+                    SizedBox(width: 10),
+                    // 注册按钮
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: EdgeInsets.symmetric(vertical: 14.0), backgroundColor: Colors.blue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.0),
+                          ),
+                        ),
+                        onPressed: () {
+                          _showRegisterDialog(context);
+                        },
+                        child: Text('Register'),
                       ),
                     ),
-                    onPressed: () {
-                      _showRegisterDialog(context);
-                    },
-                    child: Text('Register'),
-                  ),
+                  ],
                 ),
-              ],
             ],
           ),
         ),
