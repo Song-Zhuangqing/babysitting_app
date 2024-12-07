@@ -26,32 +26,7 @@ class _NanniesUpdateCertificateScreenState
     extends State<NanniesUpdateCertificateScreen> {
   File? _certificateImage;
   final ImagePicker _picker = ImagePicker();
-  bool hasCertificate = false;
-
-  // 获取用户当前证书状态
-  Future<void> _fetchUserCertificateStatus() async {
-    try {
-      final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_nannies_info.php'), // 假设为获取信息的API
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: {
-          'user_id': widget.userId,
-        },
-      );
-
-      if (response.statusCode == 200) {
-        final result = json.decode(response.body);
-        if (result['status'] == 'success') {
-          setState(() {
-            hasCertificate = result['data']['nannies_certificate'] == '1';
-          });
-        }
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Network Error: $e')));
-    }
-  }
+  String certificateInfo = ''; // 证书信息
 
   // 选择证书图片
   Future<void> _pickImage(ImageSource source) async {
@@ -63,11 +38,11 @@ class _NanniesUpdateCertificateScreenState
     }
   }
 
-  // 上传或更新证书图片
+  // 上传证书信息和图片
   Future<void> _uploadCertificate() async {
-    if (_certificateImage == null) {
+    if (_certificateImage == null || certificateInfo.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select a certificate image.')),
+        SnackBar(content: Text('Please fill in all fields and select an image.')),
       );
       return;
     }
@@ -79,28 +54,33 @@ class _NanniesUpdateCertificateScreenState
       );
 
       request.fields['user_id'] = widget.userId;
-      request.fields['has_certificate'] = hasCertificate ? '1' : '0';
+      request.fields['certificate_info'] = certificateInfo;
 
       // 上传证书图片
       request.files.add(await http.MultipartFile.fromPath(
-        'certificate_image_url',
+        'certificate_image',
         _certificateImage!.path,
       ));
+
+      // 打印调试信息
+      print('Request fields: ${request.fields}');
+      print('Request files: ${request.files}');
 
       final response = await request.send();
 
       if (response.statusCode == 200) {
         final result = await response.stream.bytesToString();
+        print('Response body: $result'); // 打印调试信息
         final jsonResponse = json.decode(result);
 
         if (jsonResponse['status'] == 'success') {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Certificate updated successfully.')),
+            SnackBar(content: Text('Certificate uploaded successfully.')),
           );
           Navigator.pop(context); // 返回上一页
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Update failed: ${jsonResponse['message']}')),
+            SnackBar(content: Text('Upload failed: ${jsonResponse['message']}')),
           );
         }
       } else {
@@ -108,6 +88,7 @@ class _NanniesUpdateCertificateScreenState
             .showSnackBar(SnackBar(content: Text('Server Error')));
       }
     } catch (e) {
+      print('Error: $e'); // 打印调试信息
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text('Network Error: $e')));
     }
@@ -129,38 +110,35 @@ class _NanniesUpdateCertificateScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            SwitchListTile(
-              title: Text('Do you have a certificate?'),
-              value: hasCertificate,
-              onChanged: (bool value) {
+            TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Certificate Info',
+                helperText: 'e.g., Childcare Certification',
+              ),
+              onChanged: (value) {
                 setState(() {
-                  hasCertificate = value;
+                  certificateInfo = value;
                 });
               },
             ),
-            if (hasCertificate)
-              Column(
-                children: <Widget>[
-                  SizedBox(height: 20),
-                  _certificateImage != null
-                      ? Image.file(_certificateImage!, height: 200)
-                      : Text('No certificate selected.'),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () => _pickImage(ImageSource.gallery),
-                        child: Text('Choose from Gallery'),
-                      ),
-                      ElevatedButton(
-                        onPressed: () => _pickImage(ImageSource.camera),
-                        child: Text('Take a Photo'),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            SizedBox(height: 20),
+            _certificateImage != null
+                ? Image.file(_certificateImage!, height: 200)
+                : Text('No certificate selected.'),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () => _pickImage(ImageSource.gallery),
+                  child: Text('Choose from Gallery'),
+                ),
+                ElevatedButton(
+                  onPressed: () => _pickImage(ImageSource.camera),
+                  child: Text('Take a Photo'),
+                ),
+              ],
+            ),
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: _uploadCertificate,

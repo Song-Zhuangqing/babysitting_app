@@ -24,6 +24,7 @@ class ParentsViewInfoScreen extends StatefulWidget {
 class _ParentsViewInfoScreenState extends State<ParentsViewInfoScreen> {
   Map<String, dynamic>? nannyDetails;
   List<Map<String, dynamic>> reviews = [];
+  List<Map<String, dynamic>> certificates = [];
   bool isLoading = true;
 
   @override
@@ -31,6 +32,7 @@ class _ParentsViewInfoScreenState extends State<ParentsViewInfoScreen> {
     super.initState();
     _loadNannyDetails();
     _loadNannyReviews();
+    _loadCertificates();
   }
 
   // 获取保姆的详细信息
@@ -107,6 +109,41 @@ class _ParentsViewInfoScreenState extends State<ParentsViewInfoScreen> {
     }
   }
 
+  // 获取证书信息
+  Future<void> _loadCertificates() async {
+    try {
+      final response = await http.post(
+        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_certificates.php'),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {
+          'user_id': widget.nannyId, // 传递保姆ID
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result['status'] == 'success') {
+          setState(() {
+            certificates = List<Map<String, dynamic>>.from(result['certificates']);
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to load certificates: ${result['message']}')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Server Error')),
+        );
+      }
+    } catch (e) {
+      print('Network Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Network Error: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -136,15 +173,35 @@ class _ParentsViewInfoScreenState extends State<ParentsViewInfoScreen> {
                     Text('Email: ${nannyDetails!['nannies_email']}'),
                     SizedBox(height: 10),
                     Text('Address: ${nannyDetails!['nannies_address']}'),
-                    SizedBox(height: 10),
-                    Text('Certificate: ${nannyDetails!['nannies_certificate'] == '1' ? 'Yes' : 'No'}'),
-                    SizedBox(height: 10),
-                    nannyDetails!['certificate_image_url'] != null
-                        ? Image.network(
-                          '${Config.apiUrl}/babysitting_app/php/${nannyDetails!['certificate_image_url']}')
-                        : Text('No certificate uploaded'),
                     SizedBox(height: 20),
                   ],
+                  // 显示证书信息
+                  Text(
+                    'Certificates:',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  if (certificates.isNotEmpty)
+                    ...certificates.map((certificate) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Certificate Info: ${certificate['certificate_info']}'),
+                          SizedBox(height: 5),
+                          if (certificate['certificate_image_url'] != null)
+                            Image.network(
+                              certificate['certificate_image_url'],
+                              height: 150,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Text('Failed to load image');
+                              },
+                            ),
+                          Divider(),
+                        ],
+                      );
+                    }).toList()
+                  else
+                    Text('No certificates available.'),
+                  SizedBox(height: 20),
                   // 显示保姆的评价内容和星级
                   Text(
                     'Reviews:',

@@ -15,11 +15,6 @@ class _RegisterParentScreenState extends State<RegisterParentScreen> {
   String gender = ''; // 初始值为空
   String email = '';
   String address = ''; // 地址
-  // String addressLine2 = ''; // 地址第二行
-  // String city = ''; // 城市
-  // String state = ''; // 州
-  // String postalCode = ''; // 邮政编码
-  // String country = ''; // 国家
   String password = '';
 
   Future<void> _register() async {
@@ -33,11 +28,6 @@ class _RegisterParentScreenState extends State<RegisterParentScreen> {
           'gender': gender,
           'email': email,
           'address': address,
-          // 'address_line2': addressLine2,
-          // 'city': city,
-          // 'state': state,
-          // 'postal_code': postalCode,
-          // 'country': country,
           'password': password,
         },
       );
@@ -91,7 +81,10 @@ class _RegisterParentScreenState extends State<RegisterParentScreen> {
                 onSaved: (value) => name = value ?? '',
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Phone Number'),
+                decoration: InputDecoration(
+                  labelText: 'Phone Number',
+                  helperText: 'e.g., 01112345678', // 提供示例
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your phone number';
@@ -123,7 +116,10 @@ class _RegisterParentScreenState extends State<RegisterParentScreen> {
                 },
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  helperText: 'e.g., example@gmail.com', // 提供示例
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your email';
@@ -145,53 +141,6 @@ class _RegisterParentScreenState extends State<RegisterParentScreen> {
                 },
                 onSaved: (value) => address = value ?? '',
               ),
-              // 注释掉其他地址信息字段
-              /*
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Address Line 2'),
-                onSaved: (value) => addressLine2 = value ?? '',
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'City'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your city';
-                  }
-                  return null;
-                },
-                onSaved: (value) => city = value ?? '',
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'State'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your state';
-                  }
-                  return null;
-                },
-                onSaved: (value) => state = value ?? '',
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Postal Code'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your postal code';
-                  }
-                  return null;
-                },
-                onSaved: (value) => postalCode = value ?? '',
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Country'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your country';
-                  }
-                  return null;
-                },
-                onSaved: (value) => country = value ?? '',
-              ),
-              */
               TextFormField(
                 decoration: InputDecoration(labelText: 'Password'),
                 obscureText: true,

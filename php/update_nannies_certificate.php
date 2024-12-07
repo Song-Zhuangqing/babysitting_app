@@ -1,100 +1,95 @@
 <?php
-// 设置响应头
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Access-Control-Allow-Methods: POST");
 header("Content-Type: application/json; charset=UTF-8");
 
-// 包含数据库配置
+// 数据库配置信息
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "cbcp"; // 使用您提供的数据库名称
+$dbname = "cbcp";
 
 // 创建数据库连接
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 // 检查连接
 if ($conn->connect_error) {
-    error_log("Database connection failed: " . $conn->connect_error);
-    die(json_encode(['status' => 'error', 'message' => 'Database connection failed']));
+    error_log("数据库连接失败: " . $conn->connect_error);
+    die(json_encode(['status' => 'error', 'message' => '数据库连接失败']));
 }
 
-// 响应数组
-$response = array();
+$response = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // 获取 user_id
+    // 获取必要字段
     $user_id = isset($_POST['user_id']) ? intval($_POST['user_id']) : null;
+    $certificate_info = isset($_POST['certificate_info']) ? $_POST['certificate_info'] : '';
 
     if (is_null($user_id)) {
         $response['status'] = 'error';
-        $response['message'] = 'Missing user ID.';
+        $response['message'] = '缺少用户 ID';
         echo json_encode($response);
         exit();
     }
 
-    // 获取证书状态
-    $has_certificate = isset($_POST['has_certificate']) ? intval($_POST['has_certificate']) : 0;
+    if (empty($certificate_info)) {
+        $response['status'] = 'error';
+        $response['message'] = '证书信息不能为空';
+        echo json_encode($response);
+        exit();
+    }
 
-    // 检查是否上传了图片
-    if (isset($_FILES['certificate_image_url']['name'])) {
+    // 上传文件
+    if (isset($_FILES['certificate_image']['name'])) {
         $target_dir = "uploads/certificates/";
-        $file_name = basename($_FILES["certificate_image_url"]["name"]);
-        $target_file = $target_dir . time() . "_" . $file_name; // 生成唯一文件名
+        $file_name = basename($_FILES["certificate_image"]["name"]);
+        $target_file = $target_dir . time() . "_" . $file_name;
 
-        // 检查目录权限
+        // 检查目录是否存在
         if (!is_dir($target_dir) && !mkdir($target_dir, 0777, true)) {
-            $response['status'] = 'error';
-            $response['message'] = 'Failed to create directory.';
-            echo json_encode($response);
-            exit();
+            error_log("目录创建失败: $target_dir");
+            die(json_encode(['status' => 'error', 'message' => '目录创建失败']));
         }
 
         // 上传文件
-        if (move_uploaded_file($_FILES["certificate_image_url"]["tmp_name"], $target_file)) {
-            // 成功上传图片后，设置图片路径
+        if (move_uploaded_file($_FILES["certificate_image"]["tmp_name"], $target_file)) {
             $certificate_image_url = $target_file;
 
-            // 打印调试信息
-            error_log("File uploaded successfully: " . $certificate_image_url);
-
-            // 更新带图片的SQL语句
-            $sql = "UPDATE nannies SET nannies_certificate = ?, certificate_image_url = ? WHERE nannies_id = ?";
+            // 插入数据到 certificate 表
+            $sql = "INSERT INTO certificate (nannies_id, certificate_info, certificate_image_url) 
+                    VALUES (?, ?, ?)";
             $stmt = $conn->prepare($sql);
-            $stmt->bind_param('isi', $has_certificate, $certificate_image_url, $user_id);
+
+            if (!$stmt) {
+                error_log("SQL 预处理失败: " . $conn->error);
+                die(json_encode(['status' => 'error', 'message' => 'SQL 预处理失败: ' . $conn->error]));
+            }
+
+            $stmt->bind_param('iss', $user_id, $certificate_info, $certificate_image_url);
+
+            if ($stmt->execute()) {
+                $response['status'] = 'success';
+                $response['message'] = '证书上传成功';
+            } else {
+                error_log("SQL 执行失败: " . $stmt->error);
+                $response['status'] = 'error';
+                $response['message'] = '证书上传失败';
+            }
+
+            $stmt->close();
         } else {
-            $error = error_get_last();
-            error_log("File upload error: " . $error['message']);
             $response['status'] = 'error';
-            $response['message'] = 'File upload failed. Please check permissions and path. Reason: ' . $error['message'];
-            echo json_encode($response);
-            exit();
+            $response['message'] = '证书图片上传失败';
         }
     } else {
-        // 没有上传图片时的SQL语句
-        $sql = "UPDATE nannies SET nannies_certificate = ? WHERE nannies_id = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param('ii', $has_certificate, $user_id);
-    }
-
-    // 执行更新操作
-    if ($stmt->execute()) {
-        $response['status'] = 'success';
-        $response['message'] = 'Certificate information updated successfully.';
-    } else {
-        error_log("Failed to execute statement: " . $stmt->error);
         $response['status'] = 'error';
-        $response['message'] = 'Failed to update certificate information.';
+        $response['message'] = '缺少证书图片';
     }
 
     echo json_encode($response);
-    $stmt->close();
     $conn->close();
 } else {
-    // 处理无效的请求方法
-    $response['status'] = 'error';
-    $response['message'] = 'Invalid request method.';
-    echo json_encode($response);
+    echo json_encode(['status' => 'error', 'message' => '无效的请求方法']);
 }
 ?>
