@@ -2,7 +2,7 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "cbcp"; // 数据库名称
+$dbname = "cbcp";
 
 // 创建连接
 $conn = new mysqli($servername, $username, $password, $dbname);
@@ -18,7 +18,15 @@ $nanniesId = $_POST['nannies_id'];
 $nanniesId = $conn->real_escape_string($nanniesId);
 
 // 获取保姆的发布信息，使用 `nannies_details_date` 进行排序
-$sql = "SELECT * FROM nannies_details WHERE nannies_id = '$nanniesId' ORDER BY nannies_details_date DESC";
+$sql = "SELECT 
+            nannies_details_price, 
+            nannies_details_content, 
+            nannies_details_location, 
+            nannies_details_date, 
+            nannies_service_time 
+        FROM nannies_details 
+        WHERE nannies_id = '$nanniesId' 
+        ORDER BY nannies_details_date DESC";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {

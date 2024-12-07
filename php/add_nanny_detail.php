@@ -17,9 +17,11 @@ $nanniesId = $_POST['user_id'];
 $price = $_POST['nannies_details_price'];
 $content = $_POST['nannies_details_content'];
 $location = $_POST['nannies_details_location'];
+$serviceTime = $_POST['nannies_service_time'];
 
 // 插入新的发布内容
-$sql = "INSERT INTO nannies_details (nannies_id, nannies_details_price, nannies_details_content, nannies_details_location) VALUES ('$nanniesId', '$price', '$content', '$location')";
+$sql = "INSERT INTO nannies_details (nannies_id, nannies_details_price, nannies_details_content, nannies_details_location, nannies_service_time) 
+        VALUES ('$nanniesId', '$price', '$content', '$location', '$serviceTime')";
 
 if ($conn->query($sql) === TRUE) {
     echo json_encode(['status' => 'success']);

@@ -13,9 +13,19 @@ if ($conn->connect_error) {
 }
 
 // 获取所有保姆发布的信息并联接 nannies 表
-$sql = "SELECT n.nannies_name, n.nannies_email, d.nannies_details_date, d.nannies_details_price, d.nannies_details_content, d.nannies_details_location, d.nannies_id AS user_id
+$sql = "SELECT 
+            n.nannies_name, 
+            n.nannies_email, 
+            d.nannies_details_date, 
+            d.nannies_details_price, 
+            d.nannies_details_content, 
+            d.nannies_details_location, 
+            d.nannies_service_time, 
+            d.nannies_id AS user_id
         FROM nannies_details d
-        JOIN nannies n ON d.nannies_id = n.nannies_id";
+        JOIN nannies n ON d.nannies_id = n.nannies_id
+        ORDER BY d.nannies_details_date DESC";
+
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {

@@ -3,9 +3,9 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config.dart';
 import '../side_menu.dart'; // 父母端侧边栏
-import 'parents_view_details.dart'; // 导入保姆详细信息页面
-import '../login_screen.dart'; // 导入登录界面
-import '../main_menu.dart'; // 导入主菜单
+import 'parents_view_details.dart'; // 保姆详细信息页面
+import '../login_screen.dart'; // 登录页面
+import '../main_menu.dart'; // 主菜单页面
 
 class ParentsProfileScreen extends StatelessWidget {
   final String? userId;
@@ -85,26 +85,32 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
   }
 
   Future<void> _loadNannyDetails() async {
-    final response = await http.post(
-      Uri.parse('${Config.apiUrl}/babysitting_app/php/get_all_nanny_details.php'),
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_all_nanny_details.php'),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      );
 
-    if (response.statusCode == 200) {
-      final result = json.decode(response.body);
-      if (result['status'] == 'success') {
-        setState(() {
-          _nannyDetails = List<Map<String, dynamic>>.from(result['details']);
-          _filteredDetails = _nannyDetails;
-        });
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result['status'] == 'success') {
+          setState(() {
+            _nannyDetails = List<Map<String, dynamic>>.from(result['details']);
+            _filteredDetails = _nannyDetails;
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to load details: ${result['message']}')),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load details: ${result['message']}')),
+          SnackBar(content: Text('Server Error')),
         );
       }
-    } else {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Server Error')),
+        SnackBar(content: Text('Network error: $e')),
       );
     }
   }
@@ -123,14 +129,9 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
     });
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
-  }
-
   void _navigateToDetailScreen(Map<String, dynamic> detail) {
     if (widget.userId != null) {
+      print('Navigating with detail: $detail'); // 调试信息
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -141,6 +142,7 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
             nanniesDetailsPrice: detail['nannies_details_price'].toString(),
             nanniesDetailsContent: detail['nannies_details_content'],
             nanniesDetailsLocation: detail['nannies_details_location'],
+            nanniesServiceTime: detail['nannies_service_time'] ?? 'Not Provided',
             userId: detail['user_id'].toString(),
             parentsId: widget.userId!,
             parentsName: widget.userEmail!,
@@ -168,7 +170,8 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
             },
             child: Text('Login'),
           ),
-          TextButton(onPressed: () {
+          TextButton(
+            onPressed: () {
               Navigator.of(context).pop();
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(builder: (context) => MainMenuScreen()),
@@ -179,6 +182,12 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -208,9 +217,9 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Price: ${detail['nannies_details_price']}'),
-                        Text('Content: ${detail['nannies_details_content']}'),
+                        Text('Price: RM ${detail['nannies_details_price']} / hour'),
                         Text('Location: ${detail['nannies_details_location']}'),
+                        Text('Service Time: ${detail['nannies_service_time'] ?? 'Not Provided'}'),
                         Text('Date: ${detail['nannies_details_date']}'),
                       ],
                     ),

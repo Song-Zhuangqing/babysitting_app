@@ -5,7 +5,7 @@ import '../../config.dart';
 import '../chat.dart';
 import '../side_menu.dart';
 import 'parents_order.dart';
-import 'parents_view_info.dart'; // 导入保姆个人信息页面
+import 'parents_view_info.dart';
 
 class ParentsViewDetailsScreen extends StatelessWidget {
   final String nanniesName;
@@ -14,6 +14,7 @@ class ParentsViewDetailsScreen extends StatelessWidget {
   final String nanniesDetailsPrice;
   final String nanniesDetailsContent;
   final String nanniesDetailsLocation;
+  final String nanniesServiceTime;
   final String userId;
   final String parentsId;
   final String parentsName;
@@ -25,6 +26,7 @@ class ParentsViewDetailsScreen extends StatelessWidget {
     required this.nanniesDetailsPrice,
     required this.nanniesDetailsContent,
     required this.nanniesDetailsLocation,
+    required this.nanniesServiceTime,
     required this.userId,
     required this.parentsId,
     required this.parentsName,
@@ -68,31 +70,45 @@ class ParentsViewDetailsScreen extends StatelessWidget {
     }
   }
 
+  Future<void> _confirmSendRequest(BuildContext context) async {
+    final confirm = await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Confirm Request'),
+        content: Text('Are you sure you want to send a request to $nanniesName?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text('Send'),
+          ),
+        ],
+      ),
+    );
+    if (confirm == true) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ParentsOrderScreen(
+            nanniesName: nanniesName,
+            nanniesDetailsPrice: nanniesDetailsPrice,
+            parentsName: parentsName,
+            parentsId: parentsId,
+            nanniesId: userId,
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Details'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.info),
-            onPressed: () {
-              // 点击后跳转至保姆个人信息页面
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ParentsViewInfoScreen(
-                    nannyId: userId,
-                    userId: parentsId,
-                    userEmail: parentsName,
-                    userType: 'parent',
-                  ),
-                ),
-              );
-            },
-            tooltip: 'View Nanny Info',
-          ),
-        ],
       ),
       drawer: SideMenu(
         userId: parentsId,
@@ -110,51 +126,61 @@ class ParentsViewDetailsScreen extends StatelessWidget {
             SizedBox(height: 10),
             Text('Date: $nanniesDetailsDate', style: TextStyle(fontSize: 18)),
             SizedBox(height: 10),
-            Text('Price: $nanniesDetailsPrice', style: TextStyle(fontSize: 18)),
+            Text('Price: RM $nanniesDetailsPrice / hour', style: TextStyle(fontSize: 18)),
             SizedBox(height: 10),
             Text('Content: $nanniesDetailsContent', style: TextStyle(fontSize: 18)),
             SizedBox(height: 10),
             Text('Location: $nanniesDetailsLocation', style: TextStyle(fontSize: 18)),
+            SizedBox(height: 10),
+            Text('Service Time: $nanniesServiceTime', style: TextStyle(fontSize: 18)),
+            SizedBox(height: 20),
+            Center(
+              child: FloatingActionButton.extended(
+                heroTag: 'viewInfoButton',
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ParentsViewInfoScreen(
+                        nannyId: userId,
+                        userId: parentsId,
+                        userEmail: parentsName,
+                        userType: 'parent',
+                      ),
+                    ),
+                  );
+                },
+                icon: Icon(Icons.info),
+                label: Text('View Nanny Info'),
+              ),
+            ),
+            SizedBox(height: 20), // 增加与浮动按钮的间距
           ],
         ),
       ),
-      floatingActionButton: Column(
-        mainAxisAlignment: MainAxisAlignment.end,
+      floatingActionButton: Wrap(
+        spacing: 10,
+        runSpacing: 10,
         children: <Widget>[
-          FloatingActionButton(
-            heroTag: 'chatButton', // 添加唯一的 heroTag
+          FloatingActionButton.extended(
+            heroTag: 'chatButton',
             onPressed: () => _startConversation(context),
-            child: Icon(Icons.chat),
-            tooltip: 'Start Chat',
+            icon: Icon(Icons.chat),
+            label: Text('Chat'),
           ),
-          SizedBox(height: 10),
-          FloatingActionButton(
-            heroTag: 'orderButton', // 添加唯一的 heroTag
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ParentsOrderScreen(
-                    nanniesName: nanniesName,
-                    nanniesDetailsPrice: nanniesDetailsPrice,
-                    parentsName: parentsName,
-                    parentsId: parentsId,
-                    nanniesId: userId,
-                  ),
-                ),
-              );
-            },
-            child: Icon(Icons.done_outlined),
-            tooltip: 'Send Request',
+          FloatingActionButton.extended(
+            heroTag: 'orderButton',
+            onPressed: () => _confirmSendRequest(context),
+            icon: Icon(Icons.done_outlined),
+            label: Text('Send Request'),
           ),
-          SizedBox(height: 10),
-          FloatingActionButton(
-            heroTag: 'backButton', // 添加唯一的 heroTag
+          FloatingActionButton.extended(
+            heroTag: 'backButton',
             onPressed: () {
               Navigator.pop(context);
             },
-            child: Icon(Icons.arrow_back),
-            tooltip: 'Back to List',
+            icon: Icon(Icons.arrow_back),
+            label: Text('Back'),
           ),
         ],
       ),
