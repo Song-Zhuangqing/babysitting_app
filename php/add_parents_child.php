@@ -12,40 +12,35 @@ if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
+// 获取表单数据
 $parentsId = $_POST['parents_id'];
-$childName = $_POST['parents_child_name'];
-$childSex = $_POST['parents_child_sex'];
 $childDetails = $_POST['parents_child_details'];
-$addressLine1 = $_POST['parents_child_address_line1'];
-$addressLine2 = $_POST['parents_child_address_line2'];
-$city = $_POST['parents_child_city'];
-$state = $_POST['parents_child_state'];
-$postalCode = $_POST['parents_child_postal_code'];
-$country = $_POST['parents_child_country'];
+$childAddress = $_POST['parents_child_address'];
+$childAge = $_POST['parents_child_age'];
+$childLanguage = $_POST['parents_child_language'];
+$childRequire = $_POST['parents_child_require'];
+$childTime = $_POST['parents_child_time'];
+$childMoney = $_POST['parents_child_money'];
 
-// 插入新的孩子信息，包括地址字段
+// 插入数据
 $sql = "INSERT INTO parents_child (
             parents_id, 
-            parents_child_name, 
-            parents_child_sex, 
             parents_child_details, 
-            parents_child_address_line1, 
-            parents_child_address_line2, 
-            parents_child_city, 
-            parents_child_state, 
-            parents_child_postal_code, 
-            parents_child_country
+            parents_child_address, 
+            parents_child_age, 
+            parents_child_language, 
+            parents_child_require, 
+            parents_child_time, 
+            parents_child_money
         ) VALUES (
             '$parentsId', 
-            '$childName', 
-            '$childSex', 
             '$childDetails', 
-            '$addressLine1', 
-            '$addressLine2', 
-            '$city', 
-            '$state', 
-            '$postalCode', 
-            '$country'
+            '$childAddress', 
+            '$childAge', 
+            '$childLanguage', 
+            '$childRequire', 
+            '$childTime', 
+            '$childMoney'
         )";
 
 if ($conn->query($sql) === TRUE) {

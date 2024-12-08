@@ -21,47 +21,110 @@ class ParentsChildAddScreen extends StatefulWidget {
 
 class _ParentsChildAddScreenState extends State<ParentsChildAddScreen> {
   final _formKey = GlobalKey<FormState>();
-  String childName = '';
-  String childSex = '';
   String childDetails = '';
-  String addressLine1 = '';
-  String addressLine2 = '';
-  String city = '';
-  String state = '';
-  String postalCode = '';
-  String country = '';
+  String childAddress = '';
+  String childAge = 'baby';
+  String childLanguage = 'English';
+  String childMoney = '';
+  List<String> selectedDays = [];
+  List<String> selectedRequirements = [];
+  TimeOfDay? startTime;
+  TimeOfDay? endTime;
+
+  final List<String> _ageOptions = [
+    'baby',
+    'toddler',
+    'preschool',
+    'grade schooler',
+    'teenager',
+  ];
+
+  final List<String> _languageOptions = [
+    'English',
+    'Chinese',
+    'Malay',
+  ];
+
+  final List<String> _requirementOptions = [
+    'Pets',
+    'Cooking',
+    'Chores',
+    'Homework assistance',
+  ];
 
   Future<void> _addChild() async {
-    final response = await http.post(
-      Uri.parse('${Config.apiUrl}/babysitting_app/php/add_parents_child.php'),
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-      body: {
-        'parents_id': widget.userId,
-        'parents_child_name': childName,
-        'parents_child_sex': childSex,
-        'parents_child_details': childDetails,
-        'parents_child_address_line1': addressLine1,
-        'parents_child_address_line2': addressLine2,
-        'parents_child_city': city,
-        'parents_child_state': state,
-        'parents_child_postal_code': postalCode,
-        'parents_child_country': country,
-      },
-    );
+    String serviceTime = _formatServiceTime();
+    String requirements = selectedRequirements.join(', ');
 
-    if (response.statusCode == 200) {
-      final result = json.decode(response.body);
-      if (result['status'] == 'success') {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Child added successfully')));
-        Navigator.pop(context);
+    if (serviceTime.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select service days and time.')),
+      );
+      return;
+    }
+
+    try {
+      final response = await http.post(
+        Uri.parse('${Config.apiUrl}/babysitting_app/php/add_parents_child.php'),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {
+          'parents_id': widget.userId,
+          'parents_child_details': childDetails,
+          'parents_child_address': childAddress,
+          'parents_child_age': childAge,
+          'parents_child_language': childLanguage,
+          'parents_child_require': requirements,
+          'parents_child_time': serviceTime,
+          'parents_child_money': childMoney,
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result['status'] == 'success') {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Child added successfully')),
+          );
+          Navigator.pop(context);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to add child: ${result['message']}')),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to add child: ${result['message']}')));
+          SnackBar(content: Text('Server Error')),
+        );
       }
-    } else {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Server Error')));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Network Error: $e')),
+      );
+    }
+  }
+
+  String _formatServiceTime() {
+    if (selectedDays.isEmpty || startTime == null || endTime == null) return '';
+
+    String formattedStartTime = startTime!.format(context);
+    String formattedEndTime = endTime!.format(context);
+    return '${selectedDays.join(', ')}: $formattedStartTime - $formattedEndTime';
+  }
+
+  Future<void> _selectTime({required bool isStartTime}) async {
+    TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.now(),
+    );
+
+    if (pickedTime != null) {
+      setState(() {
+        if (isStartTime) {
+          startTime = pickedTime;
+        } else {
+          endTime = pickedTime;
+        }
+      });
     }
   }
 
@@ -80,99 +143,172 @@ class _ParentsChildAddScreenState extends State<ParentsChildAddScreen> {
         key: _formKey,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: <Widget>[
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Child Name'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the child\'s name';
-                  }
-                  return null;
-                },
-                onSaved: (value) => childName = value ?? '',
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Child Sex'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the child\'s sex';
-                  }
-                  return null;
-                },
-                onSaved: (value) => childSex = value ?? '',
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Child Details'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the child\'s details';
-                  }
-                  return null;
-                },
-                onSaved: (value) => childDetails = value ?? '',
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Address Line 1'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the address line 1';
-                  }
-                  return null;
-                },
-                onSaved: (value) => addressLine1 = value ?? '',
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Address Line 2'),
-                onSaved: (value) => addressLine2 = value ?? '',
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'City'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the city';
-                  }
-                  return null;
-                },
-                onSaved: (value) => city = value ?? '',
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'State'),
-                onSaved: (value) => state = value ?? '',
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Postal Code'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the postal code';
-                  }
-                  return null;
-                },
-                onSaved: (value) => postalCode = value ?? '',
-              ),
-              TextFormField(
-                decoration: InputDecoration(labelText: 'Country'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter the country';
-                  }
-                  return null;
-                },
-                onSaved: (value) => country = value ?? '',
-              ),
-              SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState?.validate() ?? false) {
-                    _formKey.currentState?.save();
-                    _addChild();
-                  }
-                },
-                child: Text('Submit'),
-              ),
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                SectionTitle(title: 'Child Information'),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Details',
+                    hintText: 'e.g., 5-year-old boy who loves painting',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter child details';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) => childDetails = value ?? '',
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Address (City)',
+                    hintText: 'e.g., Kuala Lumpur',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter child address';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) => childAddress = value ?? '',
+                ),
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        decoration: InputDecoration(labelText: 'Age'),
+                        value: childAge,
+                        items: _ageOptions.map((age) {
+                          return DropdownMenuItem(value: age, child: Text(age));
+                        }).toList(),
+                        onChanged: (value) =>
+                            setState(() => childAge = value ?? 'baby'),
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: DropdownButtonFormField<String>(
+                        decoration: InputDecoration(labelText: 'Language'),
+                        value: childLanguage,
+                        items: _languageOptions.map((language) {
+                          return DropdownMenuItem(
+                              value: language, child: Text(language));
+                        }).toList(),
+                        onChanged: (value) =>
+                            setState(() => childLanguage = value ?? 'English'),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                SectionTitle(title: 'Service Information'),
+                Wrap(
+                  spacing: 10.0,
+                  children: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+                      .map((day) => FilterChip(
+                            label: Text(day),
+                            selected: selectedDays.contains(day),
+                            onSelected: (isSelected) {
+                              setState(() {
+                                if (isSelected) {
+                                  selectedDays.add(day);
+                                } else {
+                                  selectedDays.remove(day);
+                                }
+                              });
+                            },
+                          ))
+                      .toList(),
+                ),
+                SizedBox(height: 10),
+                Text('Select Time:'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () => _selectTime(isStartTime: true),
+                      child: Text(
+                          startTime != null ? startTime!.format(context) : 'Start Time'),
+                    ),
+                    ElevatedButton(
+                      onPressed: () => _selectTime(isStartTime: false),
+                      child: Text(
+                          endTime != null ? endTime!.format(context) : 'End Time'),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20),
+                Text('Requirements:', style: TextStyle(fontSize: 16)),
+                Wrap(
+                  spacing: 10.0,
+                  children: _requirementOptions.map((requirement) {
+                    return FilterChip(
+                      label: Text(requirement),
+                      selected: selectedRequirements.contains(requirement),
+                      onSelected: (isSelected) {
+                        setState(() {
+                          if (isSelected) {
+                            selectedRequirements.add(requirement);
+                          } else {
+                            selectedRequirements.remove(requirement);
+                          }
+                        });
+                      },
+                    );
+                  }).toList(),
+                ),
+                SizedBox(height: 10),
+                TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Price',
+                    prefixText: 'RM ',
+                    hintText: 'e.g., 20/hour',
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter price';
+                    }
+                    return null;
+                  },
+                  onSaved: (value) => childMoney = value ?? '',
+                ),
+                SizedBox(height: 20),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      if (_formKey.currentState?.validate() ?? false) {
+                        _formKey.currentState?.save();
+                        _addChild();
+                      }
+                    },
+                    child: Text('Submit'),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class SectionTitle extends StatelessWidget {
+  final String title;
+
+  SectionTitle({required this.title});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 16.0),
+      child: Text(
+        title,
+        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
       ),
     );
   }

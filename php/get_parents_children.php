@@ -15,7 +15,16 @@ if ($conn->connect_error) {
 $parentsId = $_POST['parents_id'];
 
 // 获取父母发布的所有孩子信息
-$sql = "SELECT * FROM parents_child WHERE parents_id = '$parentsId'";
+$sql = "SELECT 
+            parents_child_details, 
+            parents_child_address, 
+            parents_child_age, 
+            parents_child_language, 
+            parents_child_require, 
+            parents_child_time, 
+            parents_child_money 
+        FROM parents_child 
+        WHERE parents_id = '$parentsId'";
 $result = $conn->query($sql);
 
 if ($result->num_rows > 0) {

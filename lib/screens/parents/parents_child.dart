@@ -57,7 +57,6 @@ class _ParentsChildScreenState extends State<ParentsChildScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // 返回到主菜单页面，保持用户登录状态
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -85,12 +84,16 @@ class _ParentsChildScreenState extends State<ParentsChildScreen> {
             final detail = _childrenDetails[index];
             return Card(
               child: ListTile(
-                title: Text('Name: ${detail['parents_child_name']}'),
+                title: Text('Details: ${detail['parents_child_details']}'),
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Sex: ${detail['parents_child_sex']}'),
-                    Text('Details: ${detail['parents_child_details']}'),
+                    Text('Address: ${detail['parents_child_address']}'),
+                    Text('Age: ${detail['parents_child_age']}'),
+                    Text('Language: ${detail['parents_child_language']}'),
+                    Text('Requirements: ${detail['parents_child_require']}'),
+                    Text('Service Time: ${detail['parents_child_time']}'),
+                    Text('Price: RM ${detail['parents_child_money']} / hour'),
                   ],
                 ),
               ),

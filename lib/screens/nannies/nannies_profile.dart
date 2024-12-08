@@ -4,8 +4,8 @@ import 'dart:convert';
 import '../../config.dart';
 import '../login_screen.dart';
 import '../main_menu.dart';
-import 'nannies_sidemenu.dart'; // 导入侧边栏
-import 'nannies_child_details.dart'; // 导入详细信息页面
+import 'nannies_sidemenu.dart';
+import 'nannies_child_details.dart';
 
 class NanniesProfileScreen extends StatelessWidget {
   final String? userId;
@@ -79,8 +79,16 @@ class _ParentsChildListState extends State<ParentsChildList> {
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
         if (result['status'] == 'success') {
+          List<Map<String, dynamic>> details = List<Map<String, dynamic>>.from(result['details']);
+
+          for (var detail in details) {
+            String parentName = await _getParentName(detail['parents_id'] ?? '0');
+            print('Fetched Parent Name: $parentName'); // 调试输出
+            detail['parents_name'] = parentName; // 添加父母名字字段
+          }
+
           setState(() {
-            _childDetails = List<Map<String, dynamic>>.from(result['details']);
+            _childDetails = details;
             _filteredDetails = _childDetails;
           });
         } else {
@@ -94,22 +102,54 @@ class _ParentsChildListState extends State<ParentsChildList> {
     }
   }
 
+  Future<String> _getParentName(String parentId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_parents_info.php'),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {'user_id': parentId},
+      );
+
+      print('Response from getParentName: ${response.body}'); // 调试输出
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result['status'] == 'success') {
+          return result['data']['parents_name'] ?? 'Unknown Parent';
+        } else {
+          return 'Unknown Parent';
+        }
+      } else {
+        return 'Unknown Parent';
+      }
+    } catch (e) {
+      print('Error in getParentName: $e');
+      return 'Unknown Parent';
+    }
+  }
+
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
   void _onSearchChanged() {
-    setState(() {
-      _filteredDetails = _childDetails
-          .where((detail) =>
-              detail['parents_child_name']
-                  .toLowerCase()
-                  .contains(_searchController.text.toLowerCase()) ||
-              detail['parents_child_details']
-                  .toLowerCase()
-                  .contains(_searchController.text.toLowerCase()))
-          .toList();
-    });
+    if (_searchController.text.trim().isEmpty) {
+      setState(() {
+        _filteredDetails = _childDetails;
+      });
+    } else {
+      setState(() {
+        _filteredDetails = _childDetails
+            .where((detail) =>
+                detail['parents_name']
+                    .toLowerCase()
+                    .contains(_searchController.text.toLowerCase()) ||
+                detail['parents_child_language']
+                    .toLowerCase()
+                    .contains(_searchController.text.toLowerCase()))
+            .toList();
+      });
+    }
   }
 
   @override
@@ -118,17 +158,26 @@ class _ParentsChildListState extends State<ParentsChildList> {
     super.dispose();
   }
 
-  void _navigateToDetailScreen(String childName, String childDetails, String childId) {
+  Future<void> _navigateToDetailScreen(Map<String, dynamic> detail) async {
+    final parentId = detail['parents_id'] ?? '0';
+    print('Parent ID: $parentId'); // 调试输出
     if (widget.userId != null) {
+      String parentName = await _getParentName(parentId);
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (context) => NanniesChildDetailsScreen(
-            childName: childName,
-            childDetails: childDetails,
-            childId: childId,
+            childName: parentName,
+            childDetails: detail['parents_child_details'] ?? 'Not Provided',
+            childId: parentId,
+            childAddress: detail['parents_child_address'] ?? 'Not Provided',
+            childAge: detail['parents_child_age'] ?? 'Not Specified',
+            childLanguage: detail['parents_child_language'] ?? 'Not Specified',
+            childRequire: detail['parents_child_require'] ?? 'None',
+            childTime: detail['parents_child_time'] ?? 'Not Set',
+            childMoney: detail['parents_child_money'] ?? '0',
             nanniesId: widget.userId!,
-            userEmail: widget.userEmail!, // 添加 userEmail
-            userType: widget.userType!,   // 添加 userType
+            userEmail: widget.userEmail!,
+            userType: widget.userType!,
           ),
         ),
       );
@@ -141,8 +190,14 @@ class _ParentsChildListState extends State<ParentsChildList> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Login Required'),
-        content: Text('You must log in to continue.'),
+        title: Row(
+          children: [
+            Icon(Icons.warning, color: Colors.red),
+            SizedBox(width: 10),
+            Text('Login Required'),
+          ],
+        ),
+        content: Text('You must log in to access this feature.'),
         actions: <Widget>[
           TextButton(
             onPressed: () {
@@ -186,21 +241,30 @@ class _ParentsChildListState extends State<ParentsChildList> {
             itemCount: _filteredDetails.length,
             itemBuilder: (context, index) {
               final detail = _filteredDetails[index];
+              print('Detail in ListView: ${detail.toString()}'); // 调试输出
               return GestureDetector(
-                onTap: () => _navigateToDetailScreen(
-                  detail['parents_child_name'],
-                  detail['parents_child_details'],
-                  detail['parents_id'],
-                ),
+                onTap: () => _navigateToDetailScreen(detail),
                 child: Card(
-                  child: ListTile(
-                    title: Text('Name: ${detail['parents_child_name']}'),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Sex: ${detail['parents_child_sex']}'),
-                        Text('Details: ${detail['parents_child_details']}'),
-                      ],
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: ListTile(
+                      title: Text(
+                        detail['parents_name'] ?? 'Unknown Parent', // 显示父母名字
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Address: ${detail['parents_child_address']}'),
+                          Text('Language: ${detail['parents_child_language']}'),
+                          Text('Price: RM ${detail['parents_child_money']}'),
+                        ],
+                      ),
                     ),
                   ),
                 ),
