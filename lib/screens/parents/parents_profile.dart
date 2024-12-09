@@ -119,31 +119,44 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
     setState(() {
       _filteredDetails = _nannyDetails
           .where((detail) =>
-              detail['nannies_name']
+              (detail['nannies_name'] ?? '')
                   .toLowerCase()
                   .contains(_searchController.text.toLowerCase()) ||
-              detail['nannies_details_content']
+              (detail['nannies_details_content'] ?? '')
                   .toLowerCase()
                   .contains(_searchController.text.toLowerCase()))
           .toList();
     });
   }
 
+  Widget _buildPriceDetails(String priceJson) {
+    try {
+      Map<String, dynamic> prices = json.decode(priceJson);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: prices.entries.map((entry) {
+          return Text('${entry.key}: RM ${entry.value}', style: TextStyle(fontSize: 14));
+        }).toList(),
+      );
+    } catch (e) {
+      return Text('Invalid Price Format');
+    }
+  }
+
   void _navigateToDetailScreen(Map<String, dynamic> detail) {
     if (widget.userId != null) {
-      print('Navigating with detail: $detail'); // 调试信息
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => ParentsViewDetailsScreen(
-            nanniesName: detail['nannies_name'],
-            nanniesEmail: detail['nannies_email'],
-            nanniesDetailsDate: detail['nannies_details_date'],
-            nanniesDetailsPrice: detail['nannies_details_price'].toString(),
-            nanniesDetailsContent: detail['nannies_details_content'],
-            nanniesDetailsLocation: detail['nannies_details_location'],
+            nanniesName: detail['nannies_name'] ?? 'Unknown Nanny',
+            nanniesEmail: detail['nannies_email'] ?? 'No Email Provided',
+            nanniesDetailsDate: detail['nannies_details_date'] ?? 'Not Provided',
+            nanniesDetailsPrice: detail['nannies_details_price'] ?? 'Not Provided',
+            nanniesDetailsContent: detail['nannies_details_content'] ?? 'No Description',
+            nanniesDetailsLocation: detail['nannies_details_location'] ?? 'No Location',
             nanniesServiceTime: detail['nannies_service_time'] ?? 'Not Provided',
-            userId: detail['user_id'].toString(),
+            userId: detail['user_id']?.toString() ?? '0',
             parentsId: widget.userId!,
             parentsName: widget.userEmail!,
           ),
@@ -213,14 +226,15 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
                 onTap: () => _navigateToDetailScreen(detail),
                 child: Card(
                   child: ListTile(
-                    title: Text('Name: ${detail['nannies_name']}'),
+                    title: Text('Name: ${detail['nannies_name'] ?? 'Unknown'}'),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Price: RM ${detail['nannies_details_price']} / hour'),
-                        Text('Location: ${detail['nannies_details_location']}'),
+                        Text('Prices:'),
+                        _buildPriceDetails(detail['nannies_details_price'] ?? '{}'),
+                        Text('Location: ${detail['nannies_details_location'] ?? 'Not Provided'}'),
                         Text('Service Time: ${detail['nannies_service_time'] ?? 'Not Provided'}'),
-                        Text('Date: ${detail['nannies_details_date']}'),
+                        Text('Date: ${detail['nannies_details_date'] ?? 'Not Provided'}'),
                       ],
                     ),
                   ),

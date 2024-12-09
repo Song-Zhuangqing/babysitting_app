@@ -151,6 +151,21 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
     }
   }
 
+  Widget _buildPriceDetails(String priceJson) {
+    try {
+      Map<String, dynamic> prices = json.decode(priceJson);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: prices.entries.map((entry) {
+          return Text('${entry.key}: ${entry.value}',
+              style: TextStyle(fontSize: 14));
+        }).toList(),
+      );
+    } catch (e) {
+      return Text('Invalid Price Format');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return isLoading
@@ -165,9 +180,10 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Price: RM ${detail['nannies_details_price']}'),
-                      Text('Location: ${detail['nannies_details_location']}'),
-                      Text('Date: ${detail['nannies_details_date']}'),
+                      Text('Location: ${detail['nannies_details_location'] ?? 'Not Provided'}'),
+                      Text('Date: ${detail['nannies_details_date'] ?? 'Not Set'}'),
+                      Text('Prices:'),
+                      _buildPriceDetails(detail['nannies_details_price'] ?? '{}'),
                     ],
                   ),
                 ),

@@ -17,27 +17,53 @@ class NanniesDetailsAddScreen extends StatefulWidget {
   });
 
   @override
-  _NanniesDetailsAddScreenState createState() => _NanniesDetailsAddScreenState();
+  _NanniesDetailsAddScreenState createState() =>
+      _NanniesDetailsAddScreenState();
 }
 
 class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
   final _formKey = GlobalKey<FormState>();
-  String price = '';
   String content = '';
   String location = '';
   List<String> selectedDays = []; // 用户选择的周几
   TimeOfDay? startTime; // 每天的开始时间
   TimeOfDay? endTime; // 每天的结束时间
 
+  final Map<String, TextEditingController> priceControllers = {
+    'Hourly': TextEditingController(),
+    'Daily': TextEditingController(),
+    'Weekly': TextEditingController(),
+    'Monthly': TextEditingController(),
+  };
+
+  List<String> selectedChargeModes = []; // 用户选择的收费模式
+  final List<String> chargeModes = ['Hourly', 'Daily', 'Weekly', 'Monthly']; // 可选收费模式
+
   Future<void> _addNannyDetail() async {
     String serviceTime = _formatServiceTime();
 
-    if (serviceTime.isEmpty) {
+    if (serviceTime.isEmpty || selectedChargeModes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select service days and time.')),
+        SnackBar(
+            content: Text(
+                'Please select service days, time, and at least one charge mode.')),
       );
       return;
     }
+
+    // 构建价格 JSON
+    Map<String, String> prices = {};
+    for (var mode in selectedChargeModes) {
+      String price = priceControllers[mode]?.text.trim() ?? '';
+      if (price.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Please enter price for $mode')),
+        );
+        return;
+      }
+      prices[mode] = "RM $price"; // 在数字前加 "RM"
+    }
+    String priceJson = json.encode(prices);
 
     try {
       final response = await http.post(
@@ -45,7 +71,7 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'user_id': widget.userId,
-          'nannies_details_price': price,
+          'nannies_details_price': priceJson, // 将价格作为 JSON 字符串传递
           'nannies_details_content': content,
           'nannies_details_location': location,
           'nannies_service_time': serviceTime,
@@ -58,7 +84,8 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
         if (result['status'] == 'success') {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully Added')));
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text('Successfully Added')));
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
@@ -70,14 +97,17 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
             ),
           );
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed to Add: ${result['message']}')));
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Failed to Add: ${result['message']}')));
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Server Error')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Server Error')));
       }
     } catch (e) {
       print('Error: $e');
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Internet Error: $e')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Internet Error: $e')));
     }
   }
 
@@ -109,6 +139,15 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
   }
 
   @override
+  void dispose() {
+    // 清理控制器
+    for (var controller in priceControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: Text('Add Nanny Detail')),
@@ -125,17 +164,6 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
             child: Column(
               children: <Widget>[
                 TextFormField(
-                  decoration: InputDecoration(labelText: 'Price (per hour)', prefixText: 'RM '),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter price';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) => price = value ?? '',
-                ),
-                TextFormField(
                   decoration: InputDecoration(labelText: 'Location (City)'),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -147,7 +175,9 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
                 ),
                 SizedBox(height: 20),
                 // 周几选择
-                Text('Select Service Days:', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text('Select Service Days:',
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 Wrap(
                   spacing: 10.0,
                   children: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -167,16 +197,65 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
                       .toList(),
                 ),
                 SizedBox(height: 20),
+                // 收费模式选择
+                Text('Select Charge Modes and Enter Prices:',
+                    style:
+                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Column(
+                  children: chargeModes.map((mode) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        CheckboxListTile(
+                          title: Text(mode),
+                          value: selectedChargeModes.contains(mode),
+                          onChanged: (bool? isSelected) {
+                            setState(() {
+                              if (isSelected == true) {
+                                selectedChargeModes.add(mode);
+                              } else {
+                                selectedChargeModes.remove(mode);
+                              }
+                            });
+                          },
+                        ),
+                        if (selectedChargeModes.contains(mode))
+                          Padding(
+                            padding: const EdgeInsets.only(left: 20.0),
+                            child: TextFormField(
+                              controller: priceControllers[mode],
+                              decoration: InputDecoration(
+                                labelText: 'Enter Price for $mode',
+                                prefixText: 'RM ',
+                              ),
+                              keyboardType: TextInputType.text,
+                              validator: (value) {
+                                if (selectedChargeModes.contains(mode) &&
+                                    (value == null || value.isEmpty)) {
+                                  return 'Please enter price for $mode';
+                                }
+                                return null;
+                              },
+                            ),
+                          ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+                SizedBox(height: 20),
                 // 时间选择
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       children: [
-                        Text('Start Time', style: TextStyle(fontSize: 16)),
+                        Text('Start Time',
+                            style: TextStyle(fontSize: 16)),
                         ElevatedButton(
                           onPressed: () => _selectTime(isStartTime: true),
-                          child: Text(startTime != null ? startTime!.format(context) : 'Select Start Time'),
+                          child: Text(startTime != null
+                              ? startTime!.format(context)
+                              : 'Select Start Time'),
                         ),
                       ],
                     ),
@@ -185,7 +264,9 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
                         Text('End Time', style: TextStyle(fontSize: 16)),
                         ElevatedButton(
                           onPressed: () => _selectTime(isStartTime: false),
-                          child: Text(endTime != null ? endTime!.format(context) : 'Select End Time'),
+                          child: Text(endTime != null
+                              ? endTime!.format(context)
+                              : 'Select End Time'),
                         ),
                       ],
                     ),
