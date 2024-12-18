@@ -72,7 +72,7 @@ class _ParentsChildListState extends State<ParentsChildList> {
   Future<void> _loadChildDetails() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_all_parents_child.php'),
+        Uri.parse('${Config.apiUrl}/get_all_parents_child.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       );
 
@@ -105,7 +105,7 @@ class _ParentsChildListState extends State<ParentsChildList> {
   Future<String> _getParentName(String parentId) async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_parents_info.php'),
+        Uri.parse('${Config.apiUrl}/get_parents_info.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {'user_id': parentId},
       );

@@ -39,7 +39,7 @@ class _NanniesPersonalInfoScreenState extends State<NanniesPersonalInfoScreen> {
     try {
       print('Fetching user info for user ID: ${widget.userId}');
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_nannies_info.php'),
+        Uri.parse('${Config.apiUrl}/get_nannies_info.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {'user_id': widget.userId},
       );
@@ -76,7 +76,7 @@ class _NanniesPersonalInfoScreenState extends State<NanniesPersonalInfoScreen> {
     try {
       print('Fetching certificates for user ID: ${widget.userId}');
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_certificates.php'),
+        Uri.parse('${Config.apiUrl}/get_certificates.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {'user_id': widget.userId},
       );

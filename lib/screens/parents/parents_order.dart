@@ -32,7 +32,7 @@ class _ParentsOrderScreenState extends State<ParentsOrderScreen> {
 
   Future<void> _placeOrder() async {
     final response = await http.post(
-      Uri.parse('${Config.apiUrl}/babysitting_app/php/place_order.php'),
+      Uri.parse('${Config.apiUrl}/place_order.php'),
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: {
         'parents_id': widget.parentsId,

@@ -35,7 +35,7 @@ class _ParentsPersonInfoScreenState extends State<ParentsPersonInfoScreen> {
   Future<void> _fetchUserInfo() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_parents_info.php'), // API 地址
+        Uri.parse('${Config.apiUrl}/get_parents_info.php'), // API 地址
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'user_id': widget.userId,

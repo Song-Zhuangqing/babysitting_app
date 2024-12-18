@@ -37,7 +37,7 @@ class NanniesChildDetailsScreen extends StatelessWidget {
   Future<void> _startConversation(BuildContext context) async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/create_conversation.php'),
+        Uri.parse('${Config.apiUrl}/create_conversation.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'parents_id': childId,

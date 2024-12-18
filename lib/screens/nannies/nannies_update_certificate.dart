@@ -50,7 +50,7 @@ class _NanniesUpdateCertificateScreenState
     try {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/update_nannies_certificate.php'),
+        Uri.parse('${Config.apiUrl}/update_nannies_certificate.php'),
       );
 
       request.fields['user_id'] = widget.userId;

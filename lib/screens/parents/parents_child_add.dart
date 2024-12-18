@@ -65,7 +65,7 @@ class _ParentsChildAddScreenState extends State<ParentsChildAddScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/add_parents_child.php'),
+        Uri.parse('${Config.apiUrl}/add_parents_child.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'parents_id': widget.userId,

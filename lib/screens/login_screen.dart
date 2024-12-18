@@ -19,7 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/login.php'),
+        Uri.parse('${Config.apiUrl}/login.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'email': email,

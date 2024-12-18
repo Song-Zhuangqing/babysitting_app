@@ -96,7 +96,7 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
   Future<void> _loadUserName() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_nannies_info.php'),
+        Uri.parse('${Config.apiUrl}/get_nannies_info.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {'user_id': widget.userId},
       );
@@ -124,7 +124,7 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
   Future<void> _loadDetails() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_nanny_details.php'),
+        Uri.parse('${Config.apiUrl}/get_nanny_details.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'nannies_id': widget.userId,

@@ -79,7 +79,7 @@ class _NanniesChatListState extends State<NanniesChatList> {
 
   Future<void> _loadConversations() async {
     final response = await http.post(
-      Uri.parse('${Config.apiUrl}/babysitting_app/php/get_nanny_conversations.php'),
+      Uri.parse('${Config.apiUrl}/get_nanny_conversations.php'),
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: {
         'nannies_id': widget.userId,

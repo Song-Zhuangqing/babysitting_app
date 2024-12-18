@@ -67,26 +67,32 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
   }
 
   Future<void> _loadNannyDetails() async {
-    final response = await http.post(
-      Uri.parse('${Config.apiUrl}/babysitting_app/php/get_all_nanny_details.php'),
-      headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-    );
+    try {
+      final response = await http.post(
+        Uri.parse('${Config.apiUrl}/get_all_nanny_details.php'),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+      );
 
-    if (response.statusCode == 200) {
-      final result = json.decode(response.body);
-      if (result['status'] == 'success') {
-        setState(() {
-          _nannyDetails = List<Map<String, dynamic>>.from(result['details']);
-          _filteredDetails = _nannyDetails;
-        });
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result['status'] == 'success') {
+          setState(() {
+            _nannyDetails = List<Map<String, dynamic>>.from(result['details']);
+            _filteredDetails = _nannyDetails;
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to load details: ${result['message']}')),
+          );
+        }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load details: ${result['message']}')),
+          SnackBar(content: Text('Server Error')),
         );
       }
-    } else {
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Server Error')),
+        SnackBar(content: Text('Network error: $e')),
       );
     }
   }
@@ -95,14 +101,28 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
     setState(() {
       _filteredDetails = _nannyDetails
           .where((detail) =>
-              detail['nannies_name']
+              (detail['nannies_name'] ?? '')
                   .toLowerCase()
                   .contains(_searchController.text.toLowerCase()) ||
-              detail['nannies_details_content']
+              (detail['nannies_details_content'] ?? '')
                   .toLowerCase()
                   .contains(_searchController.text.toLowerCase()))
           .toList();
     });
+  }
+
+  Widget _buildPriceDetails(String priceJson) {
+    try {
+      Map<String, dynamic> prices = json.decode(priceJson);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: prices.entries.map((entry) {
+          return Text('${entry.key}: RM ${entry.value}', style: TextStyle(fontSize: 14));
+        }).toList(),
+      );
+    } catch (e) {
+      return Text('Invalid Price Format');
+    }
   }
 
   @override
@@ -131,15 +151,26 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
             itemBuilder: (context, index) {
               final detail = _filteredDetails[index];
               return Card(
+                margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: ListTile(
-                  title: Text('Name: ${detail['nannies_name']}'),
+                  title: Text(
+                    'Name: ${detail['nannies_name'] ?? 'Unknown'}',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Price: ${detail['nannies_details_price']}'),
-                      Text('Content: ${detail['nannies_details_content']}'),
-                      Text('Location: ${detail['nannies_details_location']}'),
-                      Text('Date: ${detail['nannies_details_date']}'),
+                      SizedBox(height: 5),
+                      Text('Prices:'),
+                      _buildPriceDetails(detail['nannies_details_price'] ?? '{}'),
+                      SizedBox(height: 5),
+                      Text('Location: ${detail['nannies_details_location'] ?? 'Not Provided'}'),
+                      Text('Service Time: ${detail['nannies_service_time'] ?? 'Not Provided'}'),
+                      Text('Date: ${detail['nannies_details_date'] ?? 'Not Provided'}'),
                     ],
                   ),
                 ),

@@ -87,7 +87,7 @@ class _NanniesDetailsListState extends State<NanniesDetailsList> {
   Future<void> _loadNannyDetails() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_all_nanny_details.php'),
+        Uri.parse('${Config.apiUrl}/get_all_nanny_details.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       );
 

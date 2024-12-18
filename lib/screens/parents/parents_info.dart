@@ -70,15 +70,20 @@ class _ParentsNeedsListState extends State<ParentsNeedsList> {
   Future<void> _loadNeedsDetails() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_all_parents_child.php'),
+        Uri.parse('${Config.apiUrl}/get_all_parents_child.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       );
 
       if (response.statusCode == 200) {
         final result = json.decode(response.body);
         if (result['status'] == 'success') {
+          List<Map<String, dynamic>> details = List<Map<String, dynamic>>.from(result['details']);
+          for (var detail in details) {
+            String parentName = await _getParentName(detail['parents_id'] ?? '0');
+            detail['parents_name'] = parentName; // 添加父母名字字段
+          }
           setState(() {
-            _needsDetails = List<Map<String, dynamic>>.from(result['details']);
+            _needsDetails = details;
             _filteredDetails = _needsDetails;
           });
         } else {
@@ -98,18 +103,48 @@ class _ParentsNeedsListState extends State<ParentsNeedsList> {
     }
   }
 
+  Future<String> _getParentName(String parentId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('${Config.apiUrl}/get_parents_info.php'),
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: {'user_id': parentId},
+      );
+
+      if (response.statusCode == 200) {
+        final result = json.decode(response.body);
+        if (result['status'] == 'success') {
+          return result['data']['parents_name'] ?? 'Unknown Parent';
+        } else {
+          return 'Unknown Parent';
+        }
+      } else {
+        return 'Unknown Parent';
+      }
+    } catch (e) {
+      print('Error fetching parent name: $e');
+      return 'Unknown Parent';
+    }
+  }
+
   void _onSearchChanged() {
-    setState(() {
-      _filteredDetails = _needsDetails
-          .where((detail) =>
-              detail['parents_child_name']
-                  .toLowerCase()
-                  .contains(_searchController.text.toLowerCase()) ||
-              detail['parents_child_details']
-                  .toLowerCase()
-                  .contains(_searchController.text.toLowerCase()))
-          .toList();
-    });
+    if (_searchController.text.trim().isEmpty) {
+      setState(() {
+        _filteredDetails = _needsDetails;
+      });
+    } else {
+      setState(() {
+        _filteredDetails = _needsDetails
+            .where((detail) =>
+                (detail['parents_name'] ?? '')
+                    .toLowerCase()
+                    .contains(_searchController.text.toLowerCase()) ||
+                (detail['parents_child_language'] ?? '')
+                    .toLowerCase()
+                    .contains(_searchController.text.toLowerCase()))
+            .toList();
+      });
+    }
   }
 
   @override
@@ -137,16 +172,29 @@ class _ParentsNeedsListState extends State<ParentsNeedsList> {
             itemCount: _filteredDetails.length,
             itemBuilder: (context, index) {
               final detail = _filteredDetails[index];
-              return Card(
-                child: ListTile(
-                  title: Text('Child Name: ${detail['parents_child_name']}'),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Sex: ${detail['parents_child_sex'] ?? 'N/A'}'),
-                      Text('Details: ${detail['parents_child_details']}'),
-                      // 若需要额外字段，可以在此处添加显示逻辑
-                    ],
+              return GestureDetector(
+                child: Card(
+                  margin: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: ListTile(
+                      title: Text(
+                        detail['parents_name'] ?? 'Unknown Parent',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Address: ${detail['parents_child_address'] ?? 'Not Provided'}'),
+                          Text('Language: ${detail['parents_child_language'] ?? 'Not Specified'}'),
+                          Text('Price: RM ${detail['parents_child_money'] ?? '0'}'),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               );

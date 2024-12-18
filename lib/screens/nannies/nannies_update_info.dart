@@ -43,7 +43,7 @@ class _NanniesUpdateInfoScreenState extends State<NanniesUpdateInfoScreen> {
   Future<void> _updateUserInfo() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/update_nannies_info.php'),
+        Uri.parse('${Config.apiUrl}/update_nannies_info.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'user_id': widget.userId,

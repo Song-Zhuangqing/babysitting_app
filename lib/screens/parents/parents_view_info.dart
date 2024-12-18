@@ -39,7 +39,7 @@ class _ParentsViewInfoScreenState extends State<ParentsViewInfoScreen> {
   Future<void> _loadNannyDetails() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_info.php'),
+        Uri.parse('${Config.apiUrl}/get_info.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'nannies_id': widget.nannyId, // 传递保姆ID
@@ -78,7 +78,7 @@ class _ParentsViewInfoScreenState extends State<ParentsViewInfoScreen> {
   Future<void> _loadNannyReviews() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_review.php'),
+        Uri.parse('${Config.apiUrl}/get_review.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'nannies_id': widget.nannyId, // 传递保姆ID
@@ -113,7 +113,7 @@ class _ParentsViewInfoScreenState extends State<ParentsViewInfoScreen> {
   Future<void> _loadCertificates() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_certificates.php'),
+        Uri.parse('${Config.apiUrl}/get_certificates.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'user_id': widget.nannyId, // 传递保姆ID

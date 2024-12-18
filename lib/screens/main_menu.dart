@@ -27,8 +27,7 @@ class MainMenuScreen extends StatelessWidget {
 
     return WillPopScope(
       onWillPop: () async {
-        // 切换应用到后台
-        SystemNavigator.pop();
+        SystemNavigator.pop(); // 切换应用到后台
         return false;
       },
       child: Scaffold(
@@ -59,86 +58,45 @@ class MainMenuScreen extends StatelessWidget {
                 width: 150,
                 height: 150,
                 fit: BoxFit.cover,
+                key: Key('mainMenuImage'), // 添加 Key
               ),
               SizedBox(height: 20),
               Column(
                 children: [
                   // 查看保姆信息按钮
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
-                      onPressed: () {
-                        if (userType == 'nanny') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => NanniesInfoScreen(
-                                userId: userId,
-                                userEmail: userEmail,
-                                userType: userType,
-                              ),
-                            ),
-                          );
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ParentsProfileScreen(
-                                userId: userId,
-                                userEmail: userEmail,
-                                userType: userType,
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                      child: Text('View Nannies Information'),
-                    ),
+                  _buildNavigationButton(
+                    context,
+                    title: 'View Nannies Information',
+                    key: Key('viewNanniesButton'),
+                    targetScreen: userType == 'nanny'
+                        ? NanniesInfoScreen(
+                            userId: userId,
+                            userEmail: userEmail,
+                            userType: userType,
+                          )
+                        : ParentsProfileScreen(
+                            userId: userId,
+                            userEmail: userEmail,
+                            userType: userType,
+                          ),
                   ),
                   SizedBox(height: 10),
                   // 查看父母需求按钮
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                        ),
-                      ),
-                      onPressed: () {
-                        if (userType == 'parent') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ParentsInfoScreen(
-                                userId: userId,
-                                userEmail: userEmail,
-                                userType: userType,
-                              ),
-                            ),
-                          );
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => NanniesProfileScreen(
-                                userId: userId,
-                                userEmail: userEmail,
-                                userType: userType,
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                      child: Text('View Parents Needs'),
-                    ),
+                  _buildNavigationButton(
+                    context,
+                    title: 'View Parents Needs',
+                    key: Key('viewParentsButton'),
+                    targetScreen: userType == 'parent'
+                        ? ParentsInfoScreen(
+                            userId: userId,
+                            userEmail: userEmail,
+                            userType: userType,
+                          )
+                        : NanniesProfileScreen(
+                            userId: userId,
+                            userEmail: userEmail,
+                            userType: userType,
+                          ),
                   ),
                 ],
               ),
@@ -149,35 +107,27 @@ class MainMenuScreen extends StatelessWidget {
                   children: [
                     // 登录按钮
                     Expanded(
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 14.0), backgroundColor: Colors.lightBlueAccent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                        ),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => LoginScreen()),
-                          );
-                        },
-                        child: Text('Login'),
+                      child: _buildNavigationButton(
+                        context,
+                        title: 'Login',
+                        key: Key('loginButton'),
+                        targetScreen: LoginScreen(),
+                        backgroundColor: Colors.lightBlueAccent,
                       ),
                     ),
                     SizedBox(width: 10),
                     // 注册按钮
                     Expanded(
                       child: ElevatedButton(
+                        key: Key('registerButton'), // 添加 Key
                         style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(vertical: 14.0), backgroundColor: Colors.blue,
+                          padding: EdgeInsets.symmetric(vertical: 14.0),
+                          backgroundColor: Colors.blue,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8.0),
                           ),
                         ),
-                        onPressed: () {
-                          _showRegisterDialog(context);
-                        },
+                        onPressed: () => _showRegisterDialog(context),
                         child: Text('Register'),
                       ),
                     ),
@@ -190,7 +140,37 @@ class MainMenuScreen extends StatelessWidget {
     );
   }
 
-  // 显示注册选项的弹窗，选择作为父母或保姆进行注册
+  // 抽取的按钮构建方法
+  Widget _buildNavigationButton(
+    BuildContext context, {
+    required String title,
+    required Widget targetScreen,
+    required Key key,
+    Color backgroundColor = Colors.blue,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        key: key,
+        style: ElevatedButton.styleFrom(
+          padding: EdgeInsets.symmetric(vertical: 16.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          backgroundColor: backgroundColor,
+        ),
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => targetScreen),
+          );
+        },
+        child: Text(title),
+      ),
+    );
+  }
+
+  // 显示注册选项的弹窗
   void _showRegisterDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -201,6 +181,7 @@ class MainMenuScreen extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               ElevatedButton(
+                key: Key('registerParentButton'), // 添加 Key
                 onPressed: () {
                   Navigator.push(
                     context,
@@ -210,6 +191,7 @@ class MainMenuScreen extends StatelessWidget {
                 child: Text('Parent'),
               ),
               ElevatedButton(
+                key: Key('registerNannyButton'), // 添加 Key
                 onPressed: () {
                   Navigator.push(
                     context,

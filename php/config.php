@@ -2,10 +2,10 @@
 // config.php
 
 // 定义服务器的IP地址
-define("SERVER_IP", "192.168.104.49");
+define("SERVER_IP", "041f-115-164-201-60.ngrok-free.app");
 
 // 定义根 URL（通常是 IP 地址 + 项目路径）
-define("BASE_URL", "http://" . SERVER_IP . "/babysitting_app/php");
+define("BASE_URL", "https://". SERVER_IP );
 
 // 可以在此处定义其他配置，例如数据库配置
 define("DB_HOST", "localhost");

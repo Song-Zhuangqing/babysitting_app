@@ -33,7 +33,7 @@ class _NanniesOrdersHistoryScreenState extends State<NanniesOrdersHistoryScreen>
   Future<void> _loadOrders() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_nannies_orders.php'),
+        Uri.parse('${Config.apiUrl}/get_nannies_orders.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'nannies_id': widget.userId,

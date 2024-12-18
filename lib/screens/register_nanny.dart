@@ -23,7 +23,7 @@ class _RegisterNannyScreenState extends State<RegisterNannyScreen> {
     try {
       // 注册保姆
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/register_nanny.php'),
+        Uri.parse('${Config.apiUrl}/register_nanny.php'),
         body: {
           'name': name,
           'phone': phone,

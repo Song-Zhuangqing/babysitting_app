@@ -35,7 +35,7 @@ class _ParentsOrdersHistoryScreenState
   Future<void> _loadOrders() async {
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_parents_orders.php'),
+        Uri.parse('${Config.apiUrl}/get_parents_orders.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'parents_id': widget.userId,

@@ -21,7 +21,7 @@ class _RegisterParentScreenState extends State<RegisterParentScreen> {
     print('Register method called'); // 调试信息
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/register_parent.php'), // 使用配置文件中的 apiUrl
+        Uri.parse('${Config.apiUrl}/register_parent.php'), // 使用配置文件中的 apiUrl
         body: {
           'name': name,
           'phone': phone,

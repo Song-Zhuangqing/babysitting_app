@@ -24,7 +24,7 @@ class _NanniesReviewScreenState extends State<NanniesReviewScreen> {
 
   Future<void> _submitReview() async {
     final response = await http.post(
-      Uri.parse('${Config.apiUrl}/babysitting_app/php/add_review.php'),
+      Uri.parse('${Config.apiUrl}/add_review.php'),
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: {
         'nannies_id': widget.nanniesId,  // 保姆ID

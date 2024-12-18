@@ -42,7 +42,7 @@ class _ParentsOrdersDetailsScreenState extends State<ParentsOrdersDetailsScreen>
 
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/get_review.php'),
+        Uri.parse('${Config.apiUrl}/get_review.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {'nannies_id': nanniesId},
       );

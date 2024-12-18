@@ -67,7 +67,7 @@ class _NanniesDetailsAddScreenState extends State<NanniesDetailsAddScreen> {
 
     try {
       final response = await http.post(
-        Uri.parse('${Config.apiUrl}/babysitting_app/php/add_nanny_detail.php'),
+        Uri.parse('${Config.apiUrl}/add_nanny_detail.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
           'user_id': widget.userId,

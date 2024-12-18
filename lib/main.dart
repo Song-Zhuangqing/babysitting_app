@@ -35,24 +35,21 @@ class _StartupLoadingScreenState extends State<StartupLoadingScreen> {
 
   Future<void> _loadApp() async {
     await Future.delayed(Duration(seconds: 3)); // 模拟加载延迟
+    if (!mounted) return; // 确保组件未被销毁
     bool isLoggedIn = await AuthManager.checkLoginStatus();
-    if (isLoggedIn) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => MainMenuScreen(
-            userId: AuthManager.userId,
-            userEmail: AuthManager.userEmail,
-            userType: AuthManager.userType,
-          ),
+    if (!mounted) return; // 再次检查组件状态
+
+    // 根据登录状态导航
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MainMenuScreen(
+          userId: isLoggedIn ? AuthManager.userId : null,
+          userEmail: isLoggedIn ? AuthManager.userEmail : null,
+          userType: isLoggedIn ? AuthManager.userType : null,
         ),
-      );
-    } else {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => MainMenuScreen()),
-      );
-    }
+      ),
+    );
   }
 
   @override
@@ -74,10 +71,13 @@ class _StartupLoadingScreenState extends State<StartupLoadingScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                CircularProgressIndicator(),
+                CircularProgressIndicator(
+                  key: Key('loadingIndicator'), // 添加 Key 用于测试
+                ),
                 SizedBox(height: 20),
                 Text(
                   'Loading...',
+                  key: Key('loadingText'), // 添加 Key 用于测试
                   style: TextStyle(fontSize: 20, color: Colors.white),
                 ),
               ],

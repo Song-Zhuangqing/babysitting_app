@@ -32,7 +32,7 @@ class _ParentsChildScreenState extends State<ParentsChildScreen> {
 
   Future<void> _loadChildrenDetails() async {
     final response = await http.post(
-      Uri.parse('${Config.apiUrl}/babysitting_app/php/get_parents_children.php'),
+      Uri.parse('${Config.apiUrl}/get_parents_children.php'),
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: {'parents_id': widget.userId},
     );

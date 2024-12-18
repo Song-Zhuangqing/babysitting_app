@@ -77,7 +77,7 @@ class _ChatListState extends State<ChatList> {
 
   Future<void> _loadConversations() async {
     final response = await http.post(
-      Uri.parse('${Config.apiUrl}/babysitting_app/php/get_parent_conversations.php'),
+      Uri.parse('${Config.apiUrl}/get_parent_conversations.php'),
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: {'parents_id': widget.userId},
     );

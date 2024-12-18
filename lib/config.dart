@@ -1,3 +1,3 @@
 class Config {
-  static const String apiUrl = 'http://192.168.104.49'; // 修改为你的实际服务器地址
+  static const String apiUrl = 'https://041f-115-164-201-60.ngrok-free.app'; // 修改为你的实际服务器地址
 }
