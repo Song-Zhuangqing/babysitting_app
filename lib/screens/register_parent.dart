@@ -38,25 +38,21 @@ class _RegisterParentScreenState extends State<RegisterParentScreen> {
       if (response.statusCode == 200) {
         final result = response.body;
         if (result.trim() == "New record created successfully") {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Successfully Registered')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Successfully Registered')));
           print('Navigating to LoginScreen...'); // 调试信息
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => LoginScreen()), // 注册成功后跳转到登录界面
           );
         } else {
-          ScaffoldMessenger.of(context)
-              .showSnackBar(SnackBar(content: Text('Failed Registered: $result')));
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Failed Registered: $result')));
         }
       } else {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text('Server Error')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Server Error')));
       }
     } catch (e) {
       print('Error: $e'); // 打印错误信息
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text('Internet Error: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Internet Error: $e')));
     }
   }
 
@@ -88,6 +84,9 @@ class _RegisterParentScreenState extends State<RegisterParentScreen> {
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your phone number';
+                  }
+                  if (!RegExp(r'^\d{10,15}$').hasMatch(value)) {
+                    return 'Please enter a valid phone number';
                   }
                   return null;
                 },
@@ -124,11 +123,12 @@ class _RegisterParentScreenState extends State<RegisterParentScreen> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter your email';
                   }
-                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+                  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+$').hasMatch(value)) {
                     return 'Please enter a valid email address';
                   }
                   return null;
                 },
+                onChanged: (_) => _formKey.currentState?.validate(), // 实时验证
                 onSaved: (value) => email = value ?? '',
               ),
               TextFormField(

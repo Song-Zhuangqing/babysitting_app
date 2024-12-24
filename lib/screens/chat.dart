@@ -36,7 +36,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _loadMessages() async {
     final response = await http.post(
-      Uri.parse('${Config.apiUrl}/babysitting_app/php/get_messages.php'),
+      Uri.parse('${Config.apiUrl}/get_messages.php'),
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: {
         'conversation_id': widget.conversationId,
@@ -61,7 +61,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if (_messageController.text.trim().isEmpty) return;
 
     final response = await http.post(
-      Uri.parse('${Config.apiUrl}/babysitting_app/php/send_message.php'),
+      Uri.parse('${Config.apiUrl}/send_message.php'),
       headers: {'Content-Type': 'application/x-www-form-urlencoded'},
       body: {
         'conversation_id': widget.conversationId,

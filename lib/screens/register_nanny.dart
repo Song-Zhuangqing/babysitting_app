@@ -21,7 +21,6 @@ class _RegisterNannyScreenState extends State<RegisterNannyScreen> {
   // 注册函数
   Future<void> _register() async {
     try {
-      // 注册保姆
       final response = await http.post(
         Uri.parse('${Config.apiUrl}/register_nanny.php'),
         body: {
@@ -37,8 +36,8 @@ class _RegisterNannyScreenState extends State<RegisterNannyScreen> {
       final result = json.decode(response.body);
 
       if (result['status'] == 'success') {
-        ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Registration successful')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Registration successful')));
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),
@@ -78,8 +77,15 @@ class _RegisterNannyScreenState extends State<RegisterNannyScreen> {
                     labelText: 'Phone Number',
                     helperText: 'e.g., 01112345678',
                   ),
-                  validator: (value) =>
-                      value!.isEmpty ? 'Please enter your phone number' : null,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your phone number';
+                    } else if (!RegExp(r'^\d{10,15}$').hasMatch(value)) {
+                      return 'Please enter a valid phone number';
+                    }
+                    return null;
+                  },
+                  onChanged: (_) => _formKey.currentState?.validate(),
                   onSaved: (value) => phone = value!,
                 ),
                 DropdownButtonFormField<String>(
@@ -100,8 +106,15 @@ class _RegisterNannyScreenState extends State<RegisterNannyScreen> {
                     labelText: 'Email',
                     helperText: 'e.g., example@gmail.com',
                   ),
-                  validator: (value) =>
-                      value!.isEmpty ? 'Please enter your email' : null,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email';
+                    } else if (!RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value)) {
+                      return 'Please enter a valid email address';
+                    }
+                    return null;
+                  },
+                  onChanged: (_) => _formKey.currentState?.validate(),
                   onSaved: (value) => email = value!,
                 ),
                 TextFormField(
